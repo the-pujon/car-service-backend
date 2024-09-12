@@ -6,14 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const http_status_1 = __importDefault(require("http-status"));
+const routes_1 = __importDefault(require("./app/routes"));
 const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalErrorHandler"));
 const notFoundRouteHandler_1 = __importDefault(require("./app/middlewares/notFoundRouteHandler"));
-const service_route_1 = require("./app/modules/service/service.route");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-//app.use("/api", router);
-app.use("/api/services", service_route_1.ServiceRoutes);
+app.use("/api", routes_1.default);
 app.get("/", (req, res) => {
     res.status(http_status_1.default.OK).json({
         status: "success",

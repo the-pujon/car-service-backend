@@ -4,15 +4,13 @@ import httpStatus from "http-status";
 import router from "./app/routes";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFoundRouteHandler from "./app/middlewares/notFoundRouteHandler";
-import { ServiceRoutes } from "./app/modules/service/service.route";
 
 const app: Application = express();
 
 app.use(express.json());
 app.use(cors());
 
-//app.use("/api", router);
-app.use("/api/services", ServiceRoutes);
+app.use("/api", router);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
