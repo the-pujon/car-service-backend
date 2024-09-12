@@ -13,7 +13,7 @@ app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 //app.use("/api", router);
 //app.use("api/services", ServiceRoutes);
-app.get("api/services", (req, res) => {
+app.get("/api/services", (req, res) => {
     res.status(http_status_1.default.OK).json({
         status: "success",
         message: "Welcome to car washing service api",
