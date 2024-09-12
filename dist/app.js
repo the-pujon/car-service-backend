@@ -6,15 +6,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const http_status_1 = __importDefault(require("http-status"));
+const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalErrorHandler"));
+const notFoundRouteHandler_1 = __importDefault(require("./app/middlewares/notFoundRouteHandler"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-let p;
-console.log(p);
-app.get("/", (req, res) => {
+//app.use("/api", router);
+//app.use("api/services", ServiceRoutes);
+app.get("api/services", (req, res) => {
     res.status(http_status_1.default.OK).json({
-        status: 'success',
-        message: "Welcome to car washing service api"
+        status: "success",
+        message: "Welcome to car washing service api",
     });
 });
+app.use(notFoundRouteHandler_1.default);
+app.use(globalErrorHandler_1.default);
 exports.default = app;
