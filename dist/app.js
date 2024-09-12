@@ -13,7 +13,7 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 //app.use("/api", router);
-app.use("api/services", service_route_1.ServiceRoutes);
+app.use("/api/services", service_route_1.ServiceRoutes);
 app.get("/", (req, res) => {
     res.status(http_status_1.default.OK).json({
         status: "success",

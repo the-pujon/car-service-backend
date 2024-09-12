@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 //app.use("/api", router);
-app.use("api/services", ServiceRoutes);
+app.use("/api/services", ServiceRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
