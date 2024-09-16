@@ -27,26 +27,18 @@ router.patch(
   "/update-profile",
   auth("user"),
   validateRequest(UpdateProfileValidation),
-  UserController.updateProfile,
+  UserController.updateOwnProfile,
 );
 
 router.patch(
   "/update-role/:id",
   auth("admin"),
   validateRequest(UpdateRoleValidation),
-  UserController.updateRole,
+  UserController.updateUserRole,
 );
 
-router.get(
-  "/users",
-  //auth("admin"),
-  UserController.getAllUsers,
-);
+router.get("/users", auth("admin"), UserController.getAllUsers);
 
-router.get(
-  "/users/:id",
-  //auth("admin"),
-  UserController.getSingleUser,
-);
+router.get("/users/:id", auth("admin"), UserController.getSingleUser);
 
 export const AuthRoutes = router;

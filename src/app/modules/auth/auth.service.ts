@@ -5,7 +5,7 @@ import { UserModel } from "./auth.model";
 import { JwtPayload } from "jsonwebtoken";
 import { createToken, omitPassword } from "./auth.utils";
 import config from "../../config";
-import { TUpdateUser, TUpdateUserRole } from "./auth.interface";
+import { TUpdateUser } from "./auth.interface";
 
 const signupUserIntoDB = async (payload: TUser) => {
   const existingUser = await UserModel.findOne({ email: payload.email });
@@ -51,34 +51,64 @@ const loginUserService = async (payload: JwtPayload) => {
   return { token, user: loggedUserWithoutPassword };
 };
 
-const updateUserProfile = async (userId: string, payload: TUpdateUser) => {
-  const user = await UserModel.findById(userId);
+const updateOwnProfile = async (userEmail: string, payload: TUpdateUser) => {
+  const user = await UserModel.findOne({ email: userEmail });
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const result = await UserModel.findByIdAndUpdate(userId, payload, {
-    new: true,
-    runValidators: true,
-  });
+  // Ensure role cannot be updated
+  delete payload.role;
+
+  const result = await UserModel.findOneAndUpdate(
+    { email: userEmail },
+    payload,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
 
   return omitPassword(result!);
 };
 
-const updateUserRole = async (userId: string, payload: TUpdateUserRole) => {
+const updateUserRole = async (
+  userId: string,
+  newRole: string,
+  adminEmail: string,
+) => {
   const user = await UserModel.findById(userId);
+  const admin = await UserModel.findOne({ email: adminEmail });
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const result = await UserModel.findByIdAndUpdate(userId, payload, {
-    new: true,
-    runValidators: true,
-  });
+  if (!admin || admin.role !== "admin") {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only admins can update user roles",
+    );
+  }
 
-  return omitPassword(result!);
+  if (user.email === adminEmail) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Admins cannot change their own role",
+    );
+  }
+
+  const result = await UserModel.findByIdAndUpdate(
+    userId,
+    { role: newRole },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  return { _id: result!._id, role: result!.role };
 };
 
 const getAllUsers = async () => {
@@ -97,7 +127,7 @@ const getSingleUser = async (userId: string) => {
 export const UserService = {
   signupUserIntoDB,
   loginUserService,
-  updateUserProfile,
+  updateOwnProfile,
   updateUserRole,
   getAllUsers,
   getSingleUser,

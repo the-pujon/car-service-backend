@@ -26,8 +26,8 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
-const updateProfile = catchAsync(async (req, res) => {
-  const result = await UserService.updateUserProfile(req.user.id, req.body);
+const updateOwnProfile = catchAsync(async (req, res) => {
+  const result = await UserService.updateOwnProfile(req.user.email, req.body);
 
   sendResponse(res, {
     success: true,
@@ -37,8 +37,12 @@ const updateProfile = catchAsync(async (req, res) => {
   });
 });
 
-const updateRole = catchAsync(async (req, res) => {
-  const result = await UserService.updateUserRole(req.params.id, req.body);
+const updateUserRole = catchAsync(async (req, res) => {
+  const result = await UserService.updateUserRole(
+    req.params.id,
+    req.body.role,
+    req.user.email,
+  );
 
   sendResponse(res, {
     success: true,
@@ -73,8 +77,8 @@ const getSingleUser = catchAsync(async (req, res) => {
 export const UserController = {
   signupUser,
   loginUser,
-  updateProfile,
-  updateRole,
+  updateOwnProfile,
+  updateUserRole,
   getAllUsers,
   getSingleUser,
 };

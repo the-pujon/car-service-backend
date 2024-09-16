@@ -19,11 +19,9 @@ export interface UserStaticMethods extends Model<TUser> {
   ): Promise<boolean>;
 }
 
-export interface TUpdateUser {
-  name?: string;
-  phone?: string;
-  address?: string;
-}
+export type TUpdateUser = Partial<TUser> & {
+  role?: string;
+};
 
 export interface TUpdateUserRole {
   role: TRole;
