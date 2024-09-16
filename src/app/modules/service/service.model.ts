@@ -8,6 +8,7 @@ const serviceSchema = new Schema<TService>(
     price: { type: Number, required: true },
     duration: { type: Number, required: true },
     isDeleted: { type: Boolean, default: false },
+    image: { type: String, required: true },
   },
   { timestamps: true },
 );

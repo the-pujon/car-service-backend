@@ -6,8 +6,8 @@ export interface TUser {
   name: string;
   email: string;
   password: string;
-  phone: number;
-  role: TRole;
+  phone: string;
+  role?: TRole;
   address: string;
 }
 
@@ -17,4 +17,14 @@ export interface UserStaticMethods extends Model<TUser> {
     plainPassword: string,
     hashedPassword: string,
   ): Promise<boolean>;
+}
+
+export interface TUpdateUser {
+  name?: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface TUpdateUserRole {
+  role: TRole;
 }

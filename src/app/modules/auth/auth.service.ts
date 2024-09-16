@@ -5,6 +5,7 @@ import { UserModel } from "./auth.model";
 import { JwtPayload } from "jsonwebtoken";
 import { createToken, omitPassword } from "./auth.utils";
 import config from "../../config";
+import { TUpdateUser, TUpdateUserRole } from "./auth.interface";
 
 const signupUserIntoDB = async (payload: TUser) => {
   const existingUser = await UserModel.findOne({ email: payload.email });
@@ -36,7 +37,7 @@ const loginUserService = async (payload: JwtPayload) => {
 
   const jwtPayload = {
     email: user.email,
-    role: user.role,
+    role: user.role as string,
   };
 
   const token = createToken(
@@ -50,7 +51,54 @@ const loginUserService = async (payload: JwtPayload) => {
   return { token, user: loggedUserWithoutPassword };
 };
 
+const updateUserProfile = async (userId: string, payload: TUpdateUser) => {
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const result = await UserModel.findByIdAndUpdate(userId, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return omitPassword(result!);
+};
+
+const updateUserRole = async (userId: string, payload: TUpdateUserRole) => {
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const result = await UserModel.findByIdAndUpdate(userId, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return omitPassword(result!);
+};
+
+const getAllUsers = async () => {
+  const users = await UserModel.find({}, "-password");
+  return users;
+};
+
+const getSingleUser = async (userId: string) => {
+  const user = await UserModel.findById(userId, "-password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return user;
+};
+
 export const UserService = {
   signupUserIntoDB,
   loginUserService,
+  updateUserProfile,
+  updateUserRole,
+  getAllUsers,
+  getSingleUser,
 };

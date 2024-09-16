@@ -3,35 +3,40 @@ import { TUser, UserStaticMethods } from "./auth.interface";
 import bcrypt from "bcrypt";
 import config from "../../config";
 
-const userSchema = new Schema<TUser, UserStaticMethods>({
-  name: {
-    type: String,
-    required: true,
+const userSchema = new Schema<TUser, UserStaticMethods>(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      select: 0,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
+    },
+    address: {
+      type: String,
+      required: true,
+    },
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
+  {
+    timestamps: true,
   },
-  password: {
-    type: String,
-    required: true,
-    select: 0,
-  },
-  phone: {
-    type: Number,
-    required: true,
-  },
-  role: {
-    type: String,
-    enum: ["admin", "user"],
-    default: "user",
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-});
+);
 
 //hashing password before saving user data into db
 userSchema.pre("save", async function (next) {

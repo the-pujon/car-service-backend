@@ -4,4 +4,5 @@ export type TService = {
   price: number;
   duration: number;
   isDeleted: boolean;
+  image: string;
 };
