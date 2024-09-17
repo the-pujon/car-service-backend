@@ -34,10 +34,8 @@ const getSlotController = catchAsync(async (req, res) => {
 });
 
 const updateSlotStatusController = catchAsync(async (req, res) => {
-  console.log("controller work");
   const { id } = req.params;
   const { isBooked } = req.body;
-  console.log(isBooked);
   const result = await SlotServices.updateSlotStatusInDB(id, isBooked);
 
   sendResponse(res, {
