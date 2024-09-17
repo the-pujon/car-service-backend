@@ -76,7 +76,25 @@ const getSlotsFromDB = async (date: string, serviceID: string) => {
   return result;
 };
 
+const updateSlotStatusInDB = async (
+  id: string,
+  isBooked: "available" | "booked" | "canceled",
+) => {
+  const result = await SlotModel.findByIdAndUpdate(
+    id,
+    { isBooked },
+    { new: true },
+  ).populate("service");
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "Slot not found");
+  }
+
+  return result;
+};
+
 export const SlotServices = {
   createSlotIntoDB,
   getSlotsFromDB,
+  updateSlotStatusInDB,
 };
