@@ -17,4 +17,10 @@ router.get("/", auth("admin"), BookingControllers.getBooking);
 
 router.get("/my-bookings", auth("user"), BookingControllers.getUserBooking);
 
+router.get(
+  "/customer/:customerId",
+  auth("admin"),
+  BookingControllers.getBookingsByCustomerId,
+);
+
 export const BookingRoutes = router;

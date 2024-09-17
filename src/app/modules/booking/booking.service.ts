@@ -107,8 +107,19 @@ const getUserBookingsFromDB = async (user: JwtPayload) => {
   return result;
 };
 
+const getBookingsByCustomerIdFromDB = async (customerId: string) => {
+  const result = await BookingModel.find({ customer: customerId }).populate([
+    "customer",
+    "service",
+    "slot",
+  ]);
+
+  return result;
+};
+
 export const BookingService = {
   createBookingIntoDB,
   getBookingFromDB,
   getUserBookingsFromDB,
+  getBookingsByCustomerIdFromDB, // Add this new function to the export
 };

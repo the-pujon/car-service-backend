@@ -45,8 +45,23 @@ const getUserBooking = catchAsync(async (req, res) => {
   });
 });
 
+const getBookingsByCustomerId = catchAsync(async (req, res) => {
+  const { customerId } = req.params;
+  const result = await BookingService.getBookingsByCustomerIdFromDB(customerId);
+
+  noDataFoundResponse(res, result);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Bookings retrieved successfully for the customer",
+    data: result,
+  });
+});
+
 export const BookingControllers = {
   createBooking,
   getBooking,
   getUserBooking,
+  getBookingsByCustomerId, // Add this new controller function
 };
