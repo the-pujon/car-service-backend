@@ -10,6 +10,8 @@ const serviceSchema = new Schema<TService>(
     duration: { type: Number, required: true },
     isDeleted: { type: Boolean, default: false },
     image: { type: String, required: true },
+    benefits: { type: [String], required: true },
+    suitableFor: { type: [String], required: true },
   },
   { timestamps: true },
 );

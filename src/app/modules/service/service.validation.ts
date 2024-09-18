@@ -8,6 +8,8 @@ export const ServiceCreateValidation = z.object({
     price: z.number(),
     duration: z.number(),
     image: z.string(),
+    benefits: z.array(z.string()),
+    suitableFor: z.array(z.string()),
   }),
 });
 
@@ -19,5 +21,7 @@ export const ServiceUpdateValidation = z.object({
     price: z.number().optional(),
     duration: z.number().optional(),
     image: z.string().optional(),
+    benefits: z.array(z.string()).optional(),
+    suitableFor: z.array(z.string()).optional(),
   }),
 });

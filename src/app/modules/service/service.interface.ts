@@ -6,4 +6,6 @@ export type TService = {
   duration: number;
   isDeleted: boolean;
   image: string;
+  benefits: string[];
+  suitableFor: string[];
 };
