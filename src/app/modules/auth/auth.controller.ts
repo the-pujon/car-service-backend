@@ -74,6 +74,17 @@ const getSingleUser = catchAsync(async (req, res) => {
   });
 });
 
+const getSingleUserByEmail = catchAsync(async (req, res) => {
+  const result = await UserService.getSingleUserByEmail(req.params.email);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User retrieved successfully",
+    data: result,
+  });
+});
+
 export const UserController = {
   signupUser,
   loginUser,
@@ -81,4 +92,5 @@ export const UserController = {
   updateUserRole,
   getAllUsers,
   getSingleUser,
+  getSingleUserByEmail,
 };

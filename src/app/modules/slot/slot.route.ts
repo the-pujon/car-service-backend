@@ -8,6 +8,8 @@ router.post("/", auth("admin"), SlotControllers.createSlotController);
 
 router.get("/availability", SlotControllers.getSlotController);
 
+router.get("/:id", SlotControllers.getSlotByIdController);
+
 router.patch("/:id", auth("admin"), SlotControllers.updateSlotStatusController);
 
 export const SlotRoutes = router;

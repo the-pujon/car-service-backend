@@ -46,8 +46,21 @@ const updateSlotStatusController = catchAsync(async (req, res) => {
   });
 });
 
+const getSlotByIdController = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await SlotServices.getSlotByIdFromDB(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Slot retrieved successfully",
+    data: result,
+  });
+});
+
 export const SlotControllers = {
   createSlotController,
   getSlotController,
   updateSlotStatusController,
+  getSlotByIdController,
 };

@@ -25,7 +25,7 @@ router.post(
 
 router.patch(
   "/update-profile",
-  auth("user"),
+  auth("user", "admin"),
   validateRequest(UpdateProfileValidation),
   UserController.updateOwnProfile,
 );
@@ -40,5 +40,11 @@ router.patch(
 router.get("/users", auth("admin"), UserController.getAllUsers);
 
 router.get("/users/:id", auth("admin"), UserController.getSingleUser);
+
+router.get(
+  "/users/email/:email",
+  auth("admin"),
+  UserController.getSingleUserByEmail,
+);
 
 export const AuthRoutes = router;

@@ -58,7 +58,8 @@ const updateOwnProfile = async (userEmail: string, payload: TUpdateUser) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  // Ensure role cannot be updated
+  // Ensure email and role cannot be updated
+  delete payload.email;
   delete payload.role;
 
   const result = await UserModel.findOneAndUpdate(
@@ -124,6 +125,14 @@ const getSingleUser = async (userId: string) => {
   return user;
 };
 
+const getSingleUserByEmail = async (email: string) => {
+  const user = await UserModel.findOne({ email }, "-password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return user;
+};
+
 export const UserService = {
   signupUserIntoDB,
   loginUserService,
@@ -131,4 +140,5 @@ export const UserService = {
   updateUserRole,
   getAllUsers,
   getSingleUser,
+  getSingleUserByEmail,
 };
