@@ -11,13 +11,22 @@ const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalEr
 const notFoundRouteHandler_1 = __importDefault(require("./app/middlewares/notFoundRouteHandler"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+}));
 app.use("/api", routes_1.default);
 app.get("/", (req, res) => {
     res.status(http_status_1.default.OK).json({
         status: "success",
         message: "Welcome to car washing service api",
     });
+});
+app.post("/api/booking-success", express_1.default.json(), (req, res) => {
+    res.redirect(302, `http://localhost:5173/booking-success`);
+});
+app.post("/api/booking-failed", express_1.default.json(), (req, res) => {
+    res.redirect(302, `http://localhost:5173/booking-fail`);
 });
 app.use(notFoundRouteHandler_1.default);
 app.use(globalErrorHandler_1.default);

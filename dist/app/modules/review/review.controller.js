@@ -12,57 +12,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SlotControllers = void 0;
+exports.ReviewControllers = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync."));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
-const slot_service_1 = require("./slot.service");
+const review_service_1 = require("./review.service");
 const noDataFoundResponse_1 = require("../../utils/noDataFoundResponse");
-const createSlotController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield slot_service_1.SlotServices.createSlotIntoDB(req.body);
+const createReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield review_service_1.ReviewService.createReviewIntoDB(req.user, req.body);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: "Slots created successfully",
+        message: "Review created successfully",
         data: result,
     });
 }));
-const getSlotController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { date, serviceId } = req.query;
-    const result = yield slot_service_1.SlotServices.getSlotsFromDB(date, serviceId);
-    //if there is no data
+const getAllReviews = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield review_service_1.ReviewService.getAllReviewsFromDB();
     (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: "Available slots retrieved successfully",
+        message: "All reviews retrieved successfully",
         data: result,
     });
 }));
-const updateSlotStatusController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const { isBooked } = req.body;
-    const result = yield slot_service_1.SlotServices.updateSlotStatusInDB(id, isBooked);
+const getUserReviews = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield review_service_1.ReviewService.getUserReviewsFromDB(req.user);
+    (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: "Slot status updated successfully",
+        message: "User reviews retrieved successfully",
         data: result,
     });
 }));
-const getSlotByIdController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const result = yield slot_service_1.SlotServices.getSlotByIdFromDB(id);
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: "Slot retrieved successfully",
-        data: result,
-    });
-}));
-exports.SlotControllers = {
-    createSlotController,
-    getSlotController,
-    updateSlotStatusController,
-    getSlotByIdController,
+exports.ReviewControllers = {
+    createReview,
+    getAllReviews,
+    getUserReviews,
 };

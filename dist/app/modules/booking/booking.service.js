@@ -90,8 +90,17 @@ const getUserBookingsFromDB = (user) => __awaiter(void 0, void 0, void 0, functi
     }).populate(["customer", "service", "slot"]);
     return result;
 });
+const getBookingsByCustomerIdFromDB = (customerId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield booking_model_1.BookingModel.find({ customer: customerId }).populate([
+        "customer",
+        "service",
+        "slot",
+    ]);
+    return result;
+});
 exports.BookingService = {
     createBookingIntoDB,
     getBookingFromDB,
     getUserBookingsFromDB,
+    getBookingsByCustomerIdFromDB, // Add this new function to the export
 };

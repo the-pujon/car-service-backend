@@ -20,7 +20,6 @@ const booking_service_1 = require("./booking.service");
 const noDataFoundResponse_1 = require("../../utils/noDataFoundResponse");
 const createBooking = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield booking_service_1.BookingService.createBookingIntoDB(req.user, req.body);
-    //console.log(result);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -50,8 +49,20 @@ const getUserBooking = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+const getBookingsByCustomerId = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { customerId } = req.params;
+    const result = yield booking_service_1.BookingService.getBookingsByCustomerIdFromDB(customerId);
+    (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Bookings retrieved successfully for the customer",
+        data: result,
+    });
+}));
 exports.BookingControllers = {
     createBooking,
     getBooking,
     getUserBooking,
+    getBookingsByCustomerId, // Add this new controller function
 };

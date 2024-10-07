@@ -25,22 +25,10 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.post("/api/booking-success", express.json(), (req, res) => {
-  // Process the POST data from the payment gateway
-  console.log("Payment success data:", req.body);
-
-  // Save the data to your database here
-
-  // Redirect to the React app with query parameters
   res.redirect(302, `http://localhost:5173/booking-success`);
 });
 
 app.post("/api/booking-failed", express.json(), (req, res) => {
-  // Process the POST data from the payment gateway
-  console.log("Payment success data:", req.body);
-
-  // Save the data to your database here
-
-  // Redirect to the React app with query parameters
   res.redirect(302, `http://localhost:5173/booking-fail`);
 });
 

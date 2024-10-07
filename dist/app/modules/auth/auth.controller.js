@@ -36,7 +36,57 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
         data: user,
     });
 }));
+const updateOwnProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield auth_service_1.UserService.updateOwnProfile(req.user.email, req.body);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "User profile updated successfully",
+        data: result,
+    });
+}));
+const updateUserRole = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield auth_service_1.UserService.updateUserRole(req.params.id, req.body.role, req.user.email);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "User role updated successfully",
+        data: result,
+    });
+}));
+const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield auth_service_1.UserService.getAllUsers();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Users retrieved successfully",
+        data: result,
+    });
+}));
+const getSingleUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield auth_service_1.UserService.getSingleUser(req.params.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "User retrieved successfully",
+        data: result,
+    });
+}));
+const getSingleUserByEmail = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield auth_service_1.UserService.getSingleUserByEmail(req.params.email);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "User retrieved successfully",
+        data: result,
+    });
+}));
 exports.UserController = {
     signupUser,
     loginUser,
+    updateOwnProfile,
+    updateUserRole,
+    getAllUsers,
+    getSingleUser,
+    getSingleUserByEmail,
 };

@@ -7,10 +7,6 @@ import { noDataFoundResponse } from "../../utils/noDataFoundResponse";
 const createBooking = catchAsync(async (req, res) => {
   const result = await BookingService.createBookingIntoDB(req.user, req.body);
 
-  console.log(req.body);
-
-  //console.log(result);
-
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

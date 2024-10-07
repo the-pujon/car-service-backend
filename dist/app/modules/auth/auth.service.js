@@ -44,7 +44,62 @@ const loginUserService = (payload) => __awaiter(void 0, void 0, void 0, function
     const loggedUserWithoutPassword = (0, auth_utils_1.omitPassword)(user);
     return { token, user: loggedUserWithoutPassword };
 });
+const updateOwnProfile = (userEmail, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield auth_model_1.UserModel.findOne({ email: userEmail });
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found");
+    }
+    // Ensure email and role cannot be updated
+    delete payload.email;
+    delete payload.role;
+    const result = yield auth_model_1.UserModel.findOneAndUpdate({ email: userEmail }, payload, {
+        new: true,
+        runValidators: true,
+    });
+    return (0, auth_utils_1.omitPassword)(result);
+});
+const updateUserRole = (userId, newRole, adminEmail) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield auth_model_1.UserModel.findById(userId);
+    const admin = yield auth_model_1.UserModel.findOne({ email: adminEmail });
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found");
+    }
+    if (!admin || admin.role !== "admin") {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "Only admins can update user roles");
+    }
+    if (user.email === adminEmail) {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "Admins cannot change their own role");
+    }
+    const result = yield auth_model_1.UserModel.findByIdAndUpdate(userId, { role: newRole }, {
+        new: true,
+        runValidators: true,
+    });
+    return { _id: result._id, role: result.role };
+});
+const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+    const users = yield auth_model_1.UserModel.find({}, "-password");
+    return users;
+});
+const getSingleUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield auth_model_1.UserModel.findById(userId, "-password");
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found");
+    }
+    return user;
+});
+const getSingleUserByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield auth_model_1.UserModel.findOne({ email }, "-password");
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found");
+    }
+    return user;
+});
 exports.UserService = {
     signupUserIntoDB,
     loginUserService,
+    updateOwnProfile,
+    updateUserRole,
+    getAllUsers,
+    getSingleUser,
+    getSingleUserByEmail,
 };

@@ -58,22 +58,42 @@ const createSlotIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function
 });
 //getting slots
 const getSlotsFromDB = (date, serviceID) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = {};
+    query.date = date;
+    query.service = serviceID;
     let result;
     if (date && serviceID) {
-        result = yield slot_model_1.SlotModel.find({ service: serviceID, date }).populate("service");
-    }
-    else if (date) {
-        result = yield slot_model_1.SlotModel.find({ date }).populate("service");
-    }
-    else if (serviceID) {
-        result = yield slot_model_1.SlotModel.find({ service: serviceID }).populate("service");
+        result = yield slot_model_1.SlotModel.find(query).populate({
+            path: "service",
+            match: { isDeleted: { $ne: true } },
+        });
     }
     else {
-        result = yield slot_model_1.SlotModel.find().populate("service");
+        result = yield slot_model_1.SlotModel.find().populate({
+            path: "service",
+            match: { isDeleted: { $ne: true } },
+        });
+    }
+    // Filter out slots with deleted services
+    return result.filter((slot) => slot.service !== null);
+});
+const updateSlotStatusInDB = (id, isBooked) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield slot_model_1.SlotModel.findByIdAndUpdate(id, { isBooked }, { new: true }).populate("service");
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Slot not found");
+    }
+    return result;
+});
+const getSlotByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield slot_model_1.SlotModel.findById(id).populate("service");
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Slot not found");
     }
     return result;
 });
 exports.SlotServices = {
     createSlotIntoDB,
     getSlotsFromDB,
+    updateSlotStatusInDB,
+    getSlotByIdFromDB,
 };

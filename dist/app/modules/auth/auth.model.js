@@ -32,7 +32,7 @@ const userSchema = new mongoose_1.Schema({
         select: 0,
     },
     phone: {
-        type: Number,
+        type: String,
         required: true,
     },
     role: {
@@ -44,6 +44,8 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
+}, {
+    timestamps: true,
 });
 //hashing password before saving user data into db
 userSchema.pre("save", function (next) {

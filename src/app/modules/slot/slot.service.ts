@@ -78,8 +78,6 @@ const getSlotsFromDB = async (date: string, serviceID: string) => {
     });
   }
 
-  console.log(result);
-
   // Filter out slots with deleted services
   return result.filter((slot) => slot.service !== null);
 };

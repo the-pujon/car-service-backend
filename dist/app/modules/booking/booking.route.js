@@ -13,4 +13,5 @@ const router = (0, express_1.Router)();
 router.post("/", (0, auth_1.auth)("user"), (0, validateRequest_1.default)(booking_validation_1.BookingCreateValidation), booking_controller_1.BookingControllers.createBooking);
 router.get("/", (0, auth_1.auth)("admin"), booking_controller_1.BookingControllers.getBooking);
 router.get("/my-bookings", (0, auth_1.auth)("user"), booking_controller_1.BookingControllers.getUserBooking);
+router.get("/customer/:customerId", (0, auth_1.auth)("admin"), booking_controller_1.BookingControllers.getBookingsByCustomerId);
 exports.BookingRoutes = router;
