@@ -25,7 +25,7 @@ const createReviewIntoDB = async (
 };
 
 const getAllReviewsFromDB = async () => {
-  const result = await ReviewModel.find().populate("user", "name email");
+  const result = await ReviewModel.find();
   return result;
 };
 

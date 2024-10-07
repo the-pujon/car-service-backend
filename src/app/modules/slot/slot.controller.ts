@@ -17,6 +17,7 @@ const createSlotController = catchAsync(async (req, res) => {
 
 const getSlotController = catchAsync(async (req, res) => {
   const { date, serviceId } = req.query;
+  console.log(date, serviceId);
   const result = await SlotServices.getSlotsFromDB(
     date as string,
     serviceId as string,

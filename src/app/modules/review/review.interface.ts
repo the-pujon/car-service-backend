@@ -1,7 +1,5 @@
-import { Types } from "mongoose";
-
 export type TReview = {
-  user: Types.ObjectId;
+  //  user: Types.ObjectId;
   name: string;
   email: string;
   message: string;

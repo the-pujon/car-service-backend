@@ -61,13 +61,24 @@ const createSlotIntoDB = async (payload: TSlot) => {
 const getSlotsFromDB = async (date: string, serviceID: string) => {
   const query: { date?: string; service?: string } = {};
 
-  if (date) query.date = date;
-  if (serviceID) query.service = serviceID;
+  query.date = date;
+  query.service = serviceID;
 
-  const result = await SlotModel.find(query).populate({
-    path: "service",
-    match: { isDeleted: { $ne: true } },
-  });
+  let result;
+
+  if (date && serviceID) {
+    result = await SlotModel.find(query).populate({
+      path: "service",
+      match: { isDeleted: { $ne: true } },
+    });
+  } else {
+    result = await SlotModel.find().populate({
+      path: "service",
+      match: { isDeleted: { $ne: true } },
+    });
+  }
+
+  console.log(result);
 
   // Filter out slots with deleted services
   return result.filter((slot) => slot.service !== null);

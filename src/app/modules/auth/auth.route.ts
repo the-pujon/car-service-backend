@@ -39,7 +39,7 @@ router.patch(
 
 router.get("/users", auth("admin"), UserController.getAllUsers);
 
-router.get("/users/:id", auth("admin"), UserController.getSingleUser);
+router.get("/users/:id", auth("admin", "user"), UserController.getSingleUser);
 
 router.get(
   "/users/email/:email",
