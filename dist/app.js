@@ -23,10 +23,10 @@ app.get("/", (req, res) => {
     });
 });
 app.post("/api/booking-success", express_1.default.json(), (req, res) => {
-    res.redirect(302, `http://localhost:5173/booking-success`);
+    res.redirect(302, `${process.env.FRONTEND_URL}/booking-success`);
 });
 app.post("/api/booking-failed", express_1.default.json(), (req, res) => {
-    res.redirect(302, `http://localhost:5173/booking-fail`);
+    res.redirect(302, `${process.env.FRONTEND_URL}/booking-fail`);
 });
 app.use(notFoundRouteHandler_1.default);
 app.use(globalErrorHandler_1.default);
