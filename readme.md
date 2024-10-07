@@ -10,14 +10,84 @@ This is the backend codebase for a Car service website
 2. Start the server: `npm run start:dev` for development with nodemon.
 3. The server will be running on `http://localhost:5000`.
 
-<!--## Project Structure
+## Project Structure
 
-- `src/config/db.js`: MongoDB connection setup.
-- `src/routes/`: Contains route handlers for different entities (users, instructors, classes, payments, categories).
-- `src/controllers/`: Controllers for each entity's CRUD operations.
-- `src/middlewares/auth.js`: Authentication and authorization middleware.
-- `app.js`: Main application file with configuration and route setup.
-- `package.json`: Project metadata and dependencies.-->
+```
+|   app.ts
+|   server.ts
+|
+\---app
+    +---config
+    |       index.ts
+    |
+    +---errors
+    |       AppError.ts
+    |       handleCastError.ts
+    |       handleDuplicateError.ts.ts
+    |       handleValidationError.ts
+    |       handleZodError.ts
+    |
+    +---interface
+    |       error.ts
+    |       index.d.ts
+    |
+    +---middlewares
+    |       auth.ts
+    |       globalErrorHandler.ts
+    |       notFoundRouteHandler.ts
+    |       validateRequest.ts
+    |
+    +---modules
+    |   +---auth
+    |   |       auth.controller.ts
+    |   |       auth.interface.ts
+    |   |       auth.model.ts
+    |   |       auth.route.ts
+    |   |       auth.service.ts
+    |   |       auth.utils.ts
+    |   |       auth.validation.ts
+    |   |
+    |   +---booking
+    |   |       booking.controller.ts
+    |   |       booking.interface.ts
+    |   |       booking.model.ts
+    |   |       booking.route.ts
+    |   |       booking.service.ts
+    |   |       booking.validation.ts
+    |   |
+    |   +---review
+    |   |       review.controller.ts
+    |   |       review.interface.ts
+    |   |       review.model.ts
+    |   |       review.route.ts
+    |   |       review.service.ts
+    |   |       review.validation.ts
+    |   |
+    |   +---service
+    |   |       service.controller.ts
+    |   |       service.interface.ts
+    |   |       service.model.ts
+    |   |       service.route.ts
+    |   |       service.service.ts
+    |   |       service.validation.ts
+    |   |
+    |   \---slot
+    |           slot.controller.ts
+    |           slot.interface.ts
+    |           slot.model.ts
+    |           slot.route.ts
+    |           slot.service.ts
+    |           slot.utils.ts
+    |           slot.validation.ts
+    |
+    +---routes
+    |       index.ts
+    |
+    \---utils
+            catchAsync..ts
+            noDataFoundResponse.ts
+            sendResponse.ts
+```
 
 ## Endpoints
 
