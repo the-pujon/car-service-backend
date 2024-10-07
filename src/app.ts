@@ -25,11 +25,11 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.post("/api/booking-success", express.json(), (req, res) => {
-  res.redirect(302, `http://localhost:5173/booking-success`);
+  res.redirect(302, `${process.env.FRONTEND_URL as string}/booking-success`);
 });
 
 app.post("/api/booking-failed", express.json(), (req, res) => {
-  res.redirect(302, `http://localhost:5173/booking-fail`);
+  res.redirect(302, `${process.env.FRONTEND_URL as string}/booking-fail`);
 });
 
 app.use(notFoundRouteHandler);
