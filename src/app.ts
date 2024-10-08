@@ -28,6 +28,8 @@ app.post("/api/booking-success", express.json(), (req, res) => {
   res.redirect(302, `${process.env.FRONTEND_URL as string}/booking-success`);
 });
 
+console.log(process.env.FRONTEND_URL);
+
 app.post("/api/booking-failed", express.json(), (req, res) => {
   res.redirect(302, `${process.env.FRONTEND_URL as string}/booking-fail`);
 });
