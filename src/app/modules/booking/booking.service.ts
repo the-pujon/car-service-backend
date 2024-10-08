@@ -129,7 +129,8 @@ const getBookingsByCustomerIdFromDB = async (customerId: string) => {
     "slot",
   ]);
 
-  return result;
+  //return result;
+  return result.filter((booking) => booking.service !== null);
 };
 
 export const BookingService = {
