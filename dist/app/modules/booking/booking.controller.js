@@ -64,5 +64,5 @@ exports.BookingControllers = {
     createBooking,
     getBooking,
     getUserBooking,
-    getBookingsByCustomerId, // Add this new controller function
+    getBookingsByCustomerId,
 };

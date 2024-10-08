@@ -4,7 +4,6 @@ exports.BookingCreateValidation = void 0;
 const zod_1 = require("zod");
 exports.BookingCreateValidation = zod_1.z.object({
     body: zod_1.z.object({
-        //customer: z.string(),
         serviceId: zod_1.z.string(),
         slotId: zod_1.z.string(),
         vehicleType: zod_1.z.string(),

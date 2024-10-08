@@ -25,6 +25,7 @@ app.get("/", (req, res) => {
 app.post("/api/booking-success", express_1.default.json(), (req, res) => {
     res.redirect(302, `${process.env.FRONTEND_URL}/booking-success`);
 });
+console.log(process.env.FRONTEND_URL);
 app.post("/api/booking-failed", express_1.default.json(), (req, res) => {
     res.redirect(302, `${process.env.FRONTEND_URL}/booking-fail`);
 });

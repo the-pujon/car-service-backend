@@ -28,7 +28,6 @@ const auth = (...requiredRoles) => {
             throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized. Login first");
         }
         const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
-        //console.log(decode, requireRole);
         const { email, role } = decoded;
         const user = yield auth_model_1.UserModel.isUserExist(email);
         //if user not found

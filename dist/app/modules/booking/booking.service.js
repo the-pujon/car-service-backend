@@ -78,22 +78,37 @@ const createBookingIntoDB = (userData, payload) => __awaiter(void 0, void 0, voi
 const getBookingFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield booking_model_1.BookingModel.find().populate([
         "customer",
-        "service",
+        {
+            path: "service",
+            match: { isDeleted: { $ne: true } }, // Only populate non-deleted services
+        },
         "slot",
     ]);
-    return result;
+    //return result;
+    return result.filter((booking) => booking.service !== null);
 });
 const getUserBookingsFromDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const getCustomer = yield auth_model_1.UserModel.findOne({ email: user.email }, { _id: 1 });
     const result = yield booking_model_1.BookingModel.find({
         customer: getCustomer === null || getCustomer === void 0 ? void 0 : getCustomer._id,
-    }).populate(["customer", "service", "slot"]);
-    return result;
+    }).populate([
+        "customer",
+        {
+            path: "service",
+            match: { isDeleted: { $ne: true } }, // Only populate non-deleted services
+        },
+        "slot",
+    ]);
+    //return result;
+    return result.filter((booking) => booking.service !== null);
 });
 const getBookingsByCustomerIdFromDB = (customerId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield booking_model_1.BookingModel.find({ customer: customerId }).populate([
         "customer",
-        "service",
+        {
+            path: "service",
+            match: { isDeleted: { $ne: true } }, // Only populate non-deleted services
+        },
         "slot",
     ]);
     return result;
@@ -102,5 +117,5 @@ exports.BookingService = {
     createBookingIntoDB,
     getBookingFromDB,
     getUserBookingsFromDB,
-    getBookingsByCustomerIdFromDB, // Add this new function to the export
+    getBookingsByCustomerIdFromDB,
 };
