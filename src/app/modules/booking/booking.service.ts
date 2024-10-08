@@ -87,11 +87,15 @@ const createBookingIntoDB = async (
 const getBookingFromDB = async () => {
   const result = await BookingModel.find().populate([
     "customer",
-    "service",
+    {
+      path: "service",
+      match: { isDeleted: { $ne: true } }, // Only populate non-deleted services
+    },
     "slot",
   ]);
 
-  return result;
+  //return result;
+  return result.filter((booking) => booking.service !== null);
 };
 
 const getUserBookingsFromDB = async (user: JwtPayload) => {
@@ -102,15 +106,26 @@ const getUserBookingsFromDB = async (user: JwtPayload) => {
 
   const result = await BookingModel.find({
     customer: getCustomer?._id,
-  }).populate(["customer", "service", "slot"]);
+  }).populate([
+    "customer",
+    {
+      path: "service",
+      match: { isDeleted: { $ne: true } }, // Only populate non-deleted services
+    },
+    "slot",
+  ]);
 
-  return result;
+  //return result;
+  return result.filter((booking) => booking.service !== null);
 };
 
 const getBookingsByCustomerIdFromDB = async (customerId: string) => {
   const result = await BookingModel.find({ customer: customerId }).populate([
     "customer",
-    "service",
+    {
+      path: "service",
+      match: { isDeleted: { $ne: true } }, // Only populate non-deleted services
+    },
     "slot",
   ]);
 
