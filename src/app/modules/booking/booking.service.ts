@@ -121,5 +121,5 @@ export const BookingService = {
   createBookingIntoDB,
   getBookingFromDB,
   getUserBookingsFromDB,
-  getBookingsByCustomerIdFromDB, // Add this new function to the export
+  getBookingsByCustomerIdFromDB,
 };

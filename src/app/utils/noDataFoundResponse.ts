@@ -1,5 +1,4 @@
 import httpStatus from "http-status";
-//import sendResponse from "./sendResponse";
 import { Response } from "express";
 import sendResponse from "./sendResponse";
 

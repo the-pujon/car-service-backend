@@ -20,7 +20,6 @@ export const auth = (...requiredRoles: ("admin" | "user")[]) => {
 
     const decoded = jwt.verify(token, config.jwt_access_secret as string);
 
-    //console.log(decode, requireRole);
     const { email, role } = decoded as JwtPayload;
 
     const user = await UserModel.isUserExist(email);
