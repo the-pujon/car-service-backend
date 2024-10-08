@@ -111,7 +111,8 @@ const getBookingsByCustomerIdFromDB = (customerId) => __awaiter(void 0, void 0, 
         },
         "slot",
     ]);
-    return result;
+    //return result;
+    return result.filter((booking) => booking.service !== null);
 });
 exports.BookingService = {
     createBookingIntoDB,
