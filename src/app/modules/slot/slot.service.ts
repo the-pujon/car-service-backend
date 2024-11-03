@@ -8,9 +8,14 @@ import { SlotUtils } from "./slot.utils";
 const createSlotIntoDB = async (payload: TSlot) => {
   const { date, endTime, startTime, service } = payload;
 
-  const endTimeInMin = SlotUtils.timeToMinute(endTime);
-
   const startTimeInMin = SlotUtils.timeToMinute(startTime);
+  let endTimeInMin = SlotUtils.timeToMinute(endTime);
+  const totalMinutesInDay = 24 * 60;
+
+  // Handle case where end time is on the next day
+  if (endTimeInMin <= startTimeInMin) {
+    endTimeInMin += totalMinutesInDay;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getDuration = await ServiceModel.findById(service).select({
@@ -37,21 +42,28 @@ const createSlotIntoDB = async (payload: TSlot) => {
   }
 
   const Slots = [];
+  const initialDate = new Date(date);
 
   for (let time = startTimeInMin; time < endTimeInMin; time += duration) {
-    const slotStartTime = SlotUtils.minuteToTime(time);
-    const slotEndTime = SlotUtils.minuteToTime(time + duration);
+    const dayOffset = Math.floor(time / totalMinutesInDay);
+    const currentTimeInMin = time % totalMinutesInDay;
+    const slotStartTime = SlotUtils.minuteToTime(currentTimeInMin);
+    const slotEndTime = SlotUtils.minuteToTime(
+      (currentTimeInMin + duration) % totalMinutesInDay,
+    );
+
+    const slotDate = new Date(initialDate);
+    slotDate.setDate(slotDate.getDate() + dayOffset);
 
     const slotData = {
       service,
-      date,
+      date: slotDate.toISOString().split("T")[0], // Format as YYYY-MM-DD
       startTime: slotStartTime,
       endTime: slotEndTime,
     };
 
-    const createSlotIntoDB = await SlotModel.create(slotData);
-
-    Slots.push(createSlotIntoDB);
+    const createdSlot = await SlotModel.create(slotData);
+    Slots.push(createdSlot);
   }
 
   return Slots;

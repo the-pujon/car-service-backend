@@ -20,8 +20,13 @@ const slot_model_1 = require("./slot.model");
 const slot_utils_1 = require("./slot.utils");
 const createSlotIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { date, endTime, startTime, service } = payload;
-    const endTimeInMin = slot_utils_1.SlotUtils.timeToMinute(endTime);
     const startTimeInMin = slot_utils_1.SlotUtils.timeToMinute(startTime);
+    let endTimeInMin = slot_utils_1.SlotUtils.timeToMinute(endTime);
+    const totalMinutesInDay = 24 * 60;
+    // Handle case where end time is on the next day
+    if (endTimeInMin <= startTimeInMin) {
+        endTimeInMin += totalMinutesInDay;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const getDuration = yield service_model_1.ServiceModel.findById(service).select({
         duration: 1,
@@ -42,17 +47,22 @@ const createSlotIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Slot already exists");
     }
     const Slots = [];
+    const initialDate = new Date(date);
     for (let time = startTimeInMin; time < endTimeInMin; time += duration) {
-        const slotStartTime = slot_utils_1.SlotUtils.minuteToTime(time);
-        const slotEndTime = slot_utils_1.SlotUtils.minuteToTime(time + duration);
+        const dayOffset = Math.floor(time / totalMinutesInDay);
+        const currentTimeInMin = time % totalMinutesInDay;
+        const slotStartTime = slot_utils_1.SlotUtils.minuteToTime(currentTimeInMin);
+        const slotEndTime = slot_utils_1.SlotUtils.minuteToTime((currentTimeInMin + duration) % totalMinutesInDay);
+        const slotDate = new Date(initialDate);
+        slotDate.setDate(slotDate.getDate() + dayOffset);
         const slotData = {
             service,
-            date,
+            date: slotDate.toISOString().split("T")[0], // Format as YYYY-MM-DD
             startTime: slotStartTime,
             endTime: slotEndTime,
         };
-        const createSlotIntoDB = yield slot_model_1.SlotModel.create(slotData);
-        Slots.push(createSlotIntoDB);
+        const createdSlot = yield slot_model_1.SlotModel.create(slotData);
+        Slots.push(createdSlot);
     }
     return Slots;
 });
