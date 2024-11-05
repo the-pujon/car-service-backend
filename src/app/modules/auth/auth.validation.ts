@@ -23,6 +23,7 @@ export const UpdateProfileValidation = z.object({
     name: z.string().optional(),
     phone: z.string().optional(),
     address: z.string().optional(),
+    profileImage: z.string().optional(),
   }),
 });
 

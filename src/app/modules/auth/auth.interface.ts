@@ -9,6 +9,7 @@ export interface TUser {
   phone: string;
   role?: TRole;
   address: string;
+  profileImage?: string;
 }
 
 export interface UserStaticMethods extends Model<TUser> {

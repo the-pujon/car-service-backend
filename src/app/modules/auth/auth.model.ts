@@ -32,6 +32,10 @@ const userSchema = new Schema<TUser, UserStaticMethods>(
       type: String,
       required: true,
     },
+    profileImage: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,
