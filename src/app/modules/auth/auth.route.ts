@@ -47,4 +47,6 @@ router.get(
   UserController.getSingleUserByEmail,
 );
 
+router.patch("/change-password", auth("user"), UserController.changePassword);
+
 export const AuthRoutes = router;

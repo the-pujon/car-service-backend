@@ -37,6 +37,7 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
     });
 }));
 const updateOwnProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("updateOwnProfile", req.body);
     const result = yield auth_service_1.UserService.updateOwnProfile(req.user.email, req.body);
     (0, sendResponse_1.default)(res, {
         success: true,

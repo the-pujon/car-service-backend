@@ -23,6 +23,7 @@ exports.UpdateProfileValidation = zod_1.z.object({
         name: zod_1.z.string().optional(),
         phone: zod_1.z.string().optional(),
         address: zod_1.z.string().optional(),
+        profileImage: zod_1.z.string().optional(),
     }),
 });
 exports.UpdateRoleValidation = zod_1.z.object({

@@ -133,6 +133,19 @@ const getSingleUserByEmail = async (email: string) => {
   return user;
 };
 
+const changePassword = async (email: string, payload: JwtPayload) => {
+  const user = await UserModel.findOne({ email });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  const result = await UserModel.findByIdAndUpdate(
+    user._id,
+    { password: payload.password },
+    { new: true, runValidators: true },
+  );
+  return result;
+};
+
 export const UserService = {
   signupUserIntoDB,
   loginUserService,
@@ -141,4 +154,5 @@ export const UserService = {
   getAllUsers,
   getSingleUser,
   getSingleUserByEmail,
+  changePassword,
 };

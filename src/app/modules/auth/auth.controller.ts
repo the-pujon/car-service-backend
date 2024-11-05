@@ -87,6 +87,17 @@ const getSingleUserByEmail = catchAsync(async (req, res) => {
   });
 });
 
+const changePassword = catchAsync(async (req, res) => {
+  const result = await UserService.changePassword(req.user.email, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Password changed successfully",
+    data: result,
+  });
+});
+
 export const UserController = {
   signupUser,
   loginUser,
@@ -95,4 +106,5 @@ export const UserController = {
   getAllUsers,
   getSingleUser,
   getSingleUserByEmail,
+  changePassword,
 };
