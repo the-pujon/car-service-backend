@@ -17,4 +17,5 @@ router.patch("/update-role/:id", (0, auth_1.auth)("admin"), (0, validateRequest_
 router.get("/users", (0, auth_1.auth)("admin"), auth_controller_1.UserController.getAllUsers);
 router.get("/users/:id", (0, auth_1.auth)("admin", "user"), auth_controller_1.UserController.getSingleUser);
 router.get("/users/email/:email", (0, auth_1.auth)("admin"), auth_controller_1.UserController.getSingleUserByEmail);
+router.patch("/change-password", (0, auth_1.auth)("user"), auth_controller_1.UserController.changePassword);
 exports.AuthRoutes = router;

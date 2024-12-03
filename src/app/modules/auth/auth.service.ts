@@ -29,9 +29,9 @@ const loginUserService = async (payload: JwtPayload) => {
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
   }
+  const isPasswordMatch = await UserModel.isPasswordMatch(payload.password, (await user).password)
 
-  //if password is not correct
-  if (!UserModel.isPasswordMatch(payload.password, (await user).password)) {
+  if (!isPasswordMatch) {
     throw new AppError(httpStatus.BAD_REQUEST, "Password is not correct !");
   }
 

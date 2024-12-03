@@ -94,6 +94,14 @@ const getSingleUserByEmail = (email) => __awaiter(void 0, void 0, void 0, functi
     }
     return user;
 });
+const changePassword = (email, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield auth_model_1.UserModel.findOne({ email });
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found");
+    }
+    const result = yield auth_model_1.UserModel.findByIdAndUpdate(user._id, { password: payload.password }, { new: true, runValidators: true });
+    return result;
+});
 exports.UserService = {
     signupUserIntoDB,
     loginUserService,
@@ -102,4 +110,5 @@ exports.UserService = {
     getAllUsers,
     getSingleUser,
     getSingleUserByEmail,
+    changePassword,
 };

@@ -90,12 +90,12 @@ const getSlotsFromDB = async (date: string, serviceID: string) => {
     });
   }
 
-  result.map((slot) => {
-    console.log(slot.service === null);
-    if (slot.service === null) {
-      console.log(slot);
-    }
-  });
+  // result.map((slot) => {
+  //   console.log(slot.service === null);
+  //   if (slot.service === null) {
+  //     console.log(slot);
+  //   }
+  // });
 
   // Filter out slots with deleted services
   return result.filter((slot) => slot.service !== null);

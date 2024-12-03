@@ -27,7 +27,7 @@ const loginUser = catchAsync(async (req, res) => {
 });
 
 const updateOwnProfile = catchAsync(async (req, res) => {
-  console.log("updateOwnProfile", req.body);
+  // console.log("updateOwnProfile", req.body);
 
   const result = await UserService.updateOwnProfile(req.user.email, req.body);
 
