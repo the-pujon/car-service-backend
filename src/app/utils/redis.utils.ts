@@ -31,3 +31,8 @@ export const deleteCachedData = async (key: string) => {
     }
 }
 
+export const clearAllCachedData = async () => {
+    await redisClient.flushAll();
+    console.log('All cached data cleared');
+}
+

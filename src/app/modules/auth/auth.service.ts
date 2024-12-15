@@ -6,6 +6,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { createToken, omitPassword } from "./auth.utils";
 import config from "../../config";
 import { TUpdateUser } from "./auth.interface";
+import { cacheData } from "../../utils/redis.utils";
 
 const signupUserIntoDB = async (payload: TUser) => {
   const existingUser = await UserModel.findOne({ email: payload.email });
@@ -45,6 +46,8 @@ const loginUserService = async (payload: JwtPayload) => {
     config.jwt_access_secret as string,
     "10h",
   );
+
+  await cacheData(`user:${user.email}:token`, token, 3600*10);
 
   const loggedUserWithoutPassword = omitPassword(user);
 

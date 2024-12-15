@@ -9,6 +9,7 @@ import jwt, {
 } from "jsonwebtoken";
 import config from "../config";
 import { UserModel } from "../modules/auth/auth.model";
+import { getCachedData } from "../utils/redis.utils";
 
 export const auth = (...requiredRoles: ("admin" | "user")[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -25,6 +26,12 @@ export const auth = (...requiredRoles: ("admin" | "user")[]) => {
       const decoded = jwt.verify(token, config.jwt_access_secret as string);
 
       const { email, role } = decoded as JwtPayload;
+
+      const cachedToken = await getCachedData(`user:${email}:token`);
+
+      if (cachedToken !== token) {
+        throw new AppError(httpStatus.UNAUTHORIZED, "Token is not valid");
+      }
 
       const user = await UserModel.isUserExist(email);
 
