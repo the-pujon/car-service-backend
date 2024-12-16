@@ -12,25 +12,47 @@ const redisTTL = parseInt(config.redis_ttl as string);
 const createServiceIntoDB = async (payLoad: TService) => {
   const result = await ServiceModel.create(payLoad);
 
-  await deleteCachedData(`${redisCacheKeyPrefix}:service`);
+  await deleteCachedData(`${redisCacheKeyPrefix}:service:page:*`);
 
   return result;
 };
 
 //get service
-const getServicesFromDB = async () => {
+const getServicesFromDB = async (page: number) => {
+  const limit = 12
+  const skip = (page - 1) * limit;
 
-  const cachedData = await getCachedData(`${redisCacheKeyPrefix}:service`);
+  const cachedData = await getCachedData(`${redisCacheKeyPrefix}:service:page:${page}`);
 
   if(cachedData){
     return cachedData;
   }
 
-  const result = await ServiceModel.find({ isDeleted: false });
+  const result = await ServiceModel.find({ isDeleted: false }).skip(skip).limit(limit);
 
-  await cacheData(`${redisCacheKeyPrefix}:service`, result, redisTTL);
+  const total = await ServiceModel.countDocuments({isDeleted: false});
+  const totalPages = Math.ceil(total / limit);
 
-  return result;
+  const paginationResult = {
+    data: result,
+    meta: {
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+      nextPage: page < totalPages ? page + 1 : null,
+      prevPage: page > 1 ? page - 1 : null,
+      currentlyShowingData: result.length,
+      totalData: total,
+    }
+  }
+
+  if(paginationResult.data.length > 0){
+    await cacheData(`${redisCacheKeyPrefix}:service:page:${page}`, paginationResult, redisTTL);
+  }
+
+  return paginationResult;
 };
 
 //get single service
@@ -80,23 +102,8 @@ const deleteServiceByIDFromDB = async (id: string) => {
     { new: true },
   );
 
-   // Get current cached services
-   const cachedServices = await getCachedData(`${redisCacheKeyPrefix}:service`);
-  
-   if (cachedServices) {
-     // Filter out the deleted service
-     const updatedServices = cachedServices.filter(
-       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-       (service: any) => service._id !== id
-     );
-     
-     // Update the cache with the filtered services
-     await cacheData(
-       `${redisCacheKeyPrefix}:service`, 
-       updatedServices, 
-       redisTTL
-     );
-   }
+  await deleteCachedData(`${redisCacheKeyPrefix}:service:page:*`);
+
  
    return result;
 
@@ -127,23 +134,17 @@ const updateServiceByIDIntoDB = async (
     new: true,
   }).exec();
 
-  // Get current cached services
-  const cachedServices = await getCachedData(`${redisCacheKeyPrefix}:service`);
-  
-  if (cachedServices) {
-    // Update the service in cached data
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updatedServices = cachedServices.map((service: any) => 
-      service._id === id ? result : service
-    );
-    
-    // Update the cache with modified services
-    await cacheData(
-      `${redisCacheKeyPrefix}:service`, 
-      updatedServices, 
-      redisTTL
-    );
-  }
+  // Only invalidate the most commonly used limit's cache
+  const commonLimit = 12; // or whatever your most common limit is
+  const position = await ServiceModel.countDocuments({
+    _id: { $lt: id },
+    isDeleted: false
+  });
+  const affectedPage = Math.ceil((position + 1) / commonLimit);
+
+  await deleteCachedData(
+    `${redisCacheKeyPrefix}:service:page:${affectedPage}`
+  );
 
   return result;
 };
