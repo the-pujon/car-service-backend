@@ -4,6 +4,7 @@ import { TService } from "./service.interface";
 import { ServiceModel } from "./service.model";
 import config from "../../config";
 import { cacheData, deleteCachedData, getCachedData } from "../../utils/redis.utils";
+import { paginationData } from "../../utils/paginationData";
 
 const redisCacheKeyPrefix = config.redis_cache_key_prefix;
 const redisTTL = parseInt(config.redis_ttl as string);
@@ -24,10 +25,11 @@ const getServicesFromDB = async (
   category?: string,
   sortBy?: 'asc' | 'desc'
 ) => {
-  const limit = 12;
+  const limit = 1;
   const skip = (page - 1) * limit;
 
   // Start with base query
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query: any = { isDeleted: false };
 
   // If there are any filters or search, skip cache
@@ -51,12 +53,23 @@ const getServicesFromDB = async (
     query.category = category;
   }
 
+  const total = await ServiceModel.countDocuments(query);
+  // const totalPages = Math.ceil(total / limit);
+
+ 
+
   // Only use cache for non-filtered, non-searched requests
   if (!isFilteredOrSearched) {
     const cacheKey = `${redisCacheKeyPrefix}:service:page:${page}`;
     const cachedData = await getCachedData(cacheKey);
     if (cachedData) {
-      return cachedData;
+
+      const paginationResultData = paginationData(page, limit, total, cachedData);
+
+      return {
+        data: cachedData,
+        meta: paginationResultData
+      };
     }
   }
 
@@ -73,22 +86,11 @@ const getServicesFromDB = async (
     .limit(limit)
     .exec();
 
-  const total = await ServiceModel.countDocuments(query);
-  const totalPages = Math.ceil(total / limit);
+  const paginationResultData = paginationData(page, limit, total, result);
 
   const paginationResult = {
     data: result,
-    meta: {
-      page,
-      limit,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-      nextPage: page < totalPages ? page + 1 : null,
-      prevPage: page > 1 ? page - 1 : null,
-      currentlyShowingData: result.length,
-      totalData: total,
-    }
+    meta: paginationResultData
   };
 
   // Only cache if there's no filtering or searching
