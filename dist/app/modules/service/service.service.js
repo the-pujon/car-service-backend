@@ -29,7 +29,7 @@ const createServiceIntoDB = (payLoad) => __awaiter(void 0, void 0, void 0, funct
 });
 //get service
 const getServicesFromDB = (page, searchQuery, category, sortBy) => __awaiter(void 0, void 0, void 0, function* () {
-    const limit = 1;
+    const limit = 12;
     const skip = (page - 1) * limit;
     // Start with base query
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
