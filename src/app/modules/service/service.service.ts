@@ -18,19 +18,62 @@ const createServiceIntoDB = async (payLoad: TService) => {
 };
 
 //get service
-const getServicesFromDB = async (page: number) => {
-  const limit = 12
+const getServicesFromDB = async (
+  page: number,
+  searchQuery?: string,
+  category?: string,
+  sortBy?: 'asc' | 'desc'
+) => {
+  const limit = 12;
   const skip = (page - 1) * limit;
 
-  const cachedData = await getCachedData(`${redisCacheKeyPrefix}:service:page:${page}`);
+  // Start with base query
+  const query: any = { isDeleted: false };
 
-  if(cachedData){
-    return cachedData;
+  // If there are any filters or search, skip cache
+  const isFilteredOrSearched = !!(searchQuery || category || sortBy);
+
+  // Add search functionality if searchQuery exists
+  if (searchQuery && searchQuery.trim()) {
+    query.$and = [
+      {
+        $or: [
+          { name: { $regex: searchQuery.trim(), $options: 'i' } },
+          { description: { $regex: searchQuery.trim(), $options: 'i' } },
+          { category: { $regex: searchQuery.trim(), $options: 'i' } }
+        ]
+      }
+    ];
   }
 
-  const result = await ServiceModel.find({ isDeleted: false }).skip(skip).limit(limit);
+  // Add category filter if category exists
+  if (category && category.trim() !== '') {
+    query.category = category;
+  }
 
-  const total = await ServiceModel.countDocuments({isDeleted: false});
+  // Only use cache for non-filtered, non-searched requests
+  if (!isFilteredOrSearched) {
+    const cacheKey = `${redisCacheKeyPrefix}:service:page:${page}`;
+    const cachedData = await getCachedData(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+  }
+
+  // Create sort object
+  let sortOptions = {};
+  if (sortBy && ['asc', 'desc'].includes(sortBy)) {
+    sortOptions = { price: sortBy === 'asc' ? 1 : -1 };
+  }
+
+  // Execute query with all conditions
+  const result = await ServiceModel.find(query)
+    .sort(sortOptions)
+    .skip(skip)
+    .limit(limit)
+    .exec();
+
+  const total = await ServiceModel.countDocuments(query);
   const totalPages = Math.ceil(total / limit);
 
   const paginationResult = {
@@ -46,10 +89,12 @@ const getServicesFromDB = async (page: number) => {
       currentlyShowingData: result.length,
       totalData: total,
     }
-  }
+  };
 
-  if(paginationResult.data.length > 0){
-    await cacheData(`${redisCacheKeyPrefix}:service:page:${page}`, paginationResult, redisTTL);
+  // Only cache if there's no filtering or searching
+  if (!isFilteredOrSearched && paginationResult.data.length > 0) {
+    const cacheKey = `${redisCacheKeyPrefix}:service:page:${page}`;
+    await cacheData(cacheKey, paginationResult, redisTTL);
   }
 
   return paginationResult;

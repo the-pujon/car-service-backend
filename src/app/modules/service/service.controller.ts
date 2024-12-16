@@ -18,9 +18,15 @@ const createService = catchAsync(async (req, res) => {
 
 //get service controller
 const getService = catchAsync(async (req, res) => {
-  const page = parseInt(req.query.page as string);
 
-  const result = await CarServiceServices.getServicesFromDB(page);
+  const {
+    search = '',
+    category = '',
+    sortBy = ''
+  } = req.query;
+  const page = parseInt(req.query.page as string) || 1;
+
+  const result = await CarServiceServices.getServicesFromDB(page, search as string, category as string, sortBy as 'asc' | 'desc');
 
   //if there is no data
   noDataFoundResponse(res, result);
