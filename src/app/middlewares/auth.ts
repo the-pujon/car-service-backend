@@ -27,7 +27,7 @@ export const auth = (...requiredRoles: ("admin" | "user")[]) => {
 
       const { email, role } = decoded as JwtPayload;
 
-      const cachedToken = await getCachedData(`user:${email}:token`);
+      const cachedToken = await getCachedData(`sparkle-car-service:user:${email}:token`);
 
       if (cachedToken !== token) {
         throw new AppError(httpStatus.UNAUTHORIZED, "Token is not valid");

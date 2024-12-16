@@ -2,17 +2,33 @@ import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { TService } from "./service.interface";
 import { ServiceModel } from "./service.model";
+import config from "../../config";
+import { cacheData, deleteCachedData, getCachedData } from "../../utils/redis.utils";
+
+const redisCacheKeyPrefix = config.redis_cache_key_prefix;
+const redisTTL = parseInt(config.redis_ttl as string);
 
 //create service
 const createServiceIntoDB = async (payLoad: TService) => {
   const result = await ServiceModel.create(payLoad);
+
+  await deleteCachedData(`${redisCacheKeyPrefix}:service`);
 
   return result;
 };
 
 //get service
 const getServicesFromDB = async () => {
+
+  const cachedData = await getCachedData(`${redisCacheKeyPrefix}:service`);
+
+  if(cachedData){
+    return cachedData;
+  }
+
   const result = await ServiceModel.find({ isDeleted: false });
+
+  await cacheData(`${redisCacheKeyPrefix}:service`, result, redisTTL);
 
   return result;
 };
@@ -64,10 +80,28 @@ const deleteServiceByIDFromDB = async (id: string) => {
     { new: true },
   );
 
-  return result;
+   // Get current cached services
+   const cachedServices = await getCachedData(`${redisCacheKeyPrefix}:service`);
+  
+   if (cachedServices) {
+     // Filter out the deleted service
+     const updatedServices = cachedServices.filter(
+       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       (service: any) => service._id !== id
+     );
+     
+     // Update the cache with the filtered services
+     await cacheData(
+       `${redisCacheKeyPrefix}:service`, 
+       updatedServices, 
+       redisTTL
+     );
+   }
+ 
+   return result;
+
 };
 
-//update service
 const updateServiceByIDIntoDB = async (
   id: string,
   payload: Partial<TService>,
@@ -92,6 +126,24 @@ const updateServiceByIDIntoDB = async (
   const result = await ServiceModel.findByIdAndUpdate(id, payload, {
     new: true,
   }).exec();
+
+  // Get current cached services
+  const cachedServices = await getCachedData(`${redisCacheKeyPrefix}:service`);
+  
+  if (cachedServices) {
+    // Update the service in cached data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updatedServices = cachedServices.map((service: any) => 
+      service._id === id ? result : service
+    );
+    
+    // Update the cache with modified services
+    await cacheData(
+      `${redisCacheKeyPrefix}:service`, 
+      updatedServices, 
+      redisTTL
+    );
+  }
 
   return result;
 };

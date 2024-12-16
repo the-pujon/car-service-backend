@@ -47,7 +47,7 @@ const loginUserService = async (payload: JwtPayload) => {
     "10h",
   );
 
-  await cacheData(`user:${user.email}:token`, token, 3600*10);
+  await cacheData(`sparkle-car-service:user:${user.email}:token`, token, 3600*10);
 
   const loggedUserWithoutPassword = omitPassword(user);
 
