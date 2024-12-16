@@ -1,10 +1,11 @@
+/* eslint-disable no-console */
 import redisClient from "../config/redis.config"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const cacheData = async (key: string, data: any, expirationTime: number) => {
     try{
         await redisClient.setEx(key, expirationTime, JSON.stringify(data));
-        console.log('Data cached successfully');
+         
     } catch (error) {
         console.error('Error caching data:', error);
     }
@@ -36,7 +37,6 @@ export const deleteCachedData = async (pattern: string) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await redisClient.del(...keys as any);
         }
-        console.log('Cached data deleted successfully');
         return true;
       } catch (error) {
         console.error('Redis delete error:', error);
@@ -46,6 +46,5 @@ export const deleteCachedData = async (pattern: string) => {
 
 export const clearAllCachedData = async () => {
     await redisClient.flushAll();
-    console.log('All cached data cleared');
 }
 

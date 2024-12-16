@@ -42,6 +42,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const jsonwebtoken_1 = __importStar(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config"));
 const auth_model_1 = require("../modules/auth/auth.model");
+const redis_utils_1 = require("../utils/redis.utils");
 const auth = (...requiredRoles) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -52,6 +53,10 @@ const auth = (...requiredRoles) => {
         try {
             const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
             const { email, role } = decoded;
+            const cachedToken = yield (0, redis_utils_1.getCachedData)(`sparkle-car-service:user:${email}:token`);
+            if (cachedToken !== token) {
+                throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "Token is not valid");
+            }
             const user = yield auth_model_1.UserModel.isUserExist(email);
             if (!user) {
                 throw new AppError_1.default(http_status_1.default.NOT_FOUND, "This user is not found!");

@@ -30,7 +30,8 @@ const createService = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 }));
 //get service controller
 const getService = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield service_service_1.CarServiceServices.getServicesFromDB();
+    const page = parseInt(req.query.page);
+    const result = yield service_service_1.CarServiceServices.getServicesFromDB(page);
     //if there is no data
     (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
     (0, sendResponse_1.default)(res, {

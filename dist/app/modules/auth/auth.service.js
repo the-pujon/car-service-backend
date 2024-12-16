@@ -18,6 +18,7 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const auth_model_1 = require("./auth.model");
 const auth_utils_1 = require("./auth.utils");
 const config_1 = __importDefault(require("../../config"));
+const redis_utils_1 = require("../../utils/redis.utils");
 const signupUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const existingUser = yield auth_model_1.UserModel.findOne({ email: payload.email });
     if (existingUser) {
@@ -32,8 +33,8 @@ const loginUserService = (payload) => __awaiter(void 0, void 0, void 0, function
     if (!user) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "This user is not found !");
     }
-    //if password is not correct
-    if (!auth_model_1.UserModel.isPasswordMatch(payload.password, (yield user).password)) {
+    const isPasswordMatch = yield auth_model_1.UserModel.isPasswordMatch(payload.password, (yield user).password);
+    if (!isPasswordMatch) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Password is not correct !");
     }
     const jwtPayload = {
@@ -41,6 +42,7 @@ const loginUserService = (payload) => __awaiter(void 0, void 0, void 0, function
         role: user.role,
     };
     const token = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, "10h");
+    yield (0, redis_utils_1.cacheData)(`sparkle-car-service:user:${user.email}:token`, token, 3600 * 10);
     const loggedUserWithoutPassword = (0, auth_utils_1.omitPassword)(user);
     return { token, user: loggedUserWithoutPassword };
 });

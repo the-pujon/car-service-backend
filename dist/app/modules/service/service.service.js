@@ -16,15 +16,45 @@ exports.CarServiceServices = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const service_model_1 = require("./service.model");
+const config_1 = __importDefault(require("../../config"));
+const redis_utils_1 = require("../../utils/redis.utils");
+const redisCacheKeyPrefix = config_1.default.redis_cache_key_prefix;
+const redisTTL = parseInt(config_1.default.redis_ttl);
 //create service
 const createServiceIntoDB = (payLoad) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield service_model_1.ServiceModel.create(payLoad);
+    yield (0, redis_utils_1.deleteCachedData)(`${redisCacheKeyPrefix}:service:page:*`);
     return result;
 });
 //get service
-const getServicesFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield service_model_1.ServiceModel.find({ isDeleted: false });
-    return result;
+const getServicesFromDB = (page) => __awaiter(void 0, void 0, void 0, function* () {
+    const limit = 12;
+    const skip = (page - 1) * limit;
+    const cachedData = yield (0, redis_utils_1.getCachedData)(`${redisCacheKeyPrefix}:service:page:${page}`);
+    if (cachedData) {
+        return cachedData;
+    }
+    const result = yield service_model_1.ServiceModel.find({ isDeleted: false }).skip(skip).limit(limit);
+    const total = yield service_model_1.ServiceModel.countDocuments({ isDeleted: false });
+    const totalPages = Math.ceil(total / limit);
+    const paginationResult = {
+        data: result,
+        meta: {
+            page,
+            limit,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+            nextPage: page < totalPages ? page + 1 : null,
+            prevPage: page > 1 ? page - 1 : null,
+            currentlyShowingData: result.length,
+            totalData: total,
+        }
+    };
+    if (paginationResult.data.length > 0) {
+        yield (0, redis_utils_1.cacheData)(`${redisCacheKeyPrefix}:service:page:${page}`, paginationResult, redisTTL);
+    }
+    return paginationResult;
 });
 //get single service
 const getServiceByIDFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -53,9 +83,9 @@ const deleteServiceByIDFromDB = (id) => __awaiter(void 0, void 0, void 0, functi
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Service is not found. This service already deleted");
     }
     const result = yield service_model_1.ServiceModel.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+    yield (0, redis_utils_1.deleteCachedData)(`${redisCacheKeyPrefix}:service:page:*`);
     return result;
 });
-//update service
 const updateServiceByIDIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const singleService = yield service_model_1.ServiceModel.findOne({
         _id: id,
@@ -70,6 +100,14 @@ const updateServiceByIDIntoDB = (id, payload) => __awaiter(void 0, void 0, void 
     const result = yield service_model_1.ServiceModel.findByIdAndUpdate(id, payload, {
         new: true,
     }).exec();
+    // Only invalidate the most commonly used limit's cache
+    const commonLimit = 12; // or whatever your most common limit is
+    const position = yield service_model_1.ServiceModel.countDocuments({
+        _id: { $lt: id },
+        isDeleted: false
+    });
+    const affectedPage = Math.ceil((position + 1) / commonLimit);
+    yield (0, redis_utils_1.deleteCachedData)(`${redisCacheKeyPrefix}:service:page:${affectedPage}`);
     return result;
 });
 exports.CarServiceServices = {
