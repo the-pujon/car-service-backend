@@ -18,6 +18,7 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const service_model_1 = require("./service.model");
 const config_1 = __importDefault(require("../../config"));
 const redis_utils_1 = require("../../utils/redis.utils");
+const paginationData_1 = require("../../utils/paginationData");
 const redisCacheKeyPrefix = config_1.default.redis_cache_key_prefix;
 const redisTTL = parseInt(config_1.default.redis_ttl);
 //create service
@@ -27,32 +28,64 @@ const createServiceIntoDB = (payLoad) => __awaiter(void 0, void 0, void 0, funct
     return result;
 });
 //get service
-const getServicesFromDB = (page) => __awaiter(void 0, void 0, void 0, function* () {
-    const limit = 12;
+const getServicesFromDB = (page, searchQuery, category, sortBy) => __awaiter(void 0, void 0, void 0, function* () {
+    const limit = 1;
     const skip = (page - 1) * limit;
-    const cachedData = yield (0, redis_utils_1.getCachedData)(`${redisCacheKeyPrefix}:service:page:${page}`);
-    if (cachedData) {
-        return cachedData;
+    // Start with base query
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const query = { isDeleted: false };
+    // If there are any filters or search, skip cache
+    const isFilteredOrSearched = !!(searchQuery || category || sortBy);
+    // Add search functionality if searchQuery exists
+    if (searchQuery && searchQuery.trim()) {
+        query.$and = [
+            {
+                $or: [
+                    { name: { $regex: searchQuery.trim(), $options: 'i' } },
+                    { description: { $regex: searchQuery.trim(), $options: 'i' } },
+                    { category: { $regex: searchQuery.trim(), $options: 'i' } }
+                ]
+            }
+        ];
     }
-    const result = yield service_model_1.ServiceModel.find({ isDeleted: false }).skip(skip).limit(limit);
-    const total = yield service_model_1.ServiceModel.countDocuments({ isDeleted: false });
-    const totalPages = Math.ceil(total / limit);
+    // Add category filter if category exists
+    if (category && category.trim() !== '') {
+        query.category = category;
+    }
+    const total = yield service_model_1.ServiceModel.countDocuments(query);
+    // const totalPages = Math.ceil(total / limit);
+    // Only use cache for non-filtered, non-searched requests
+    if (!isFilteredOrSearched) {
+        const cacheKey = `${redisCacheKeyPrefix}:service:page:${page}`;
+        const cachedData = yield (0, redis_utils_1.getCachedData)(cacheKey);
+        if (cachedData) {
+            const paginationResultData = (0, paginationData_1.paginationData)(page, limit, total, cachedData);
+            return {
+                data: cachedData,
+                meta: paginationResultData
+            };
+        }
+    }
+    // Create sort object
+    let sortOptions = {};
+    if (sortBy && ['asc', 'desc'].includes(sortBy)) {
+        sortOptions = { price: sortBy === 'asc' ? 1 : -1 };
+    }
+    // Execute query with all conditions
+    const result = yield service_model_1.ServiceModel.find(query)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limit)
+        .exec();
+    const paginationResultData = (0, paginationData_1.paginationData)(page, limit, total, result);
     const paginationResult = {
         data: result,
-        meta: {
-            page,
-            limit,
-            totalPages,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1,
-            nextPage: page < totalPages ? page + 1 : null,
-            prevPage: page > 1 ? page - 1 : null,
-            currentlyShowingData: result.length,
-            totalData: total,
-        }
+        meta: paginationResultData
     };
-    if (paginationResult.data.length > 0) {
-        yield (0, redis_utils_1.cacheData)(`${redisCacheKeyPrefix}:service:page:${page}`, paginationResult, redisTTL);
+    // Only cache if there's no filtering or searching
+    if (!isFilteredOrSearched && paginationResult.data.length > 0) {
+        const cacheKey = `${redisCacheKeyPrefix}:service:page:${page}`;
+        yield (0, redis_utils_1.cacheData)(cacheKey, paginationResult, redisTTL);
     }
     return paginationResult;
 });

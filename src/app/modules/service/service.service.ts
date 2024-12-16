@@ -25,7 +25,7 @@ const getServicesFromDB = async (
   category?: string,
   sortBy?: 'asc' | 'desc'
 ) => {
-  const limit = 1;
+  const limit = 12;
   const skip = (page - 1) * limit;
 
   // Start with base query
