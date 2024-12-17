@@ -8,7 +8,7 @@ const router = Router();
 
 router.post(
   "/",
-  auth("user", "admin"),
+  // auth("user", "admin"),
   validateRequest(ReviewCreateValidation),
   ReviewControllers.createReview,
 );

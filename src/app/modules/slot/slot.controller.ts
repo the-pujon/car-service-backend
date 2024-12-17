@@ -24,14 +24,20 @@ const getSlotController = catchAsync(async (req, res) => {
   );
 
   //if there is no data
-  noDataFoundResponse(res, result);
-
-  sendResponse(res, {
+  if(result.length === 0){
+    noDataFoundResponse(res, result);
+  }
+  else{
+    sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: "Available slots retrieved successfully",
     data: result,
   });
+  }
+ 
+
+ 
 });
 
 const updateSlotStatusController = catchAsync(async (req, res) => {
@@ -51,12 +57,18 @@ const getSlotByIdController = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await SlotServices.getSlotByIdFromDB(id);
 
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Slot retrieved successfully",
-    data: result,
-  });
+  if(!result){
+    noDataFoundResponse(res, result);
+  }
+  else{
+    sendResponse(res, { 
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Slot retrieved successfully",
+      data: result,
+    });
+  }
+ 
 });
 
 export const SlotControllers = {

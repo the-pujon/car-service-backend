@@ -67,7 +67,7 @@ const getServicesFromDB = async (
       const paginationResultData = paginationData(page, limit, total, cachedData);
 
       return {
-        data: cachedData,
+         ...cachedData,
         meta: paginationResultData
       };
     }

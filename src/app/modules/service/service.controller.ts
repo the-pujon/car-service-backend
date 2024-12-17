@@ -29,14 +29,17 @@ const getService = catchAsync(async (req, res) => {
   const result = await CarServiceServices.getServicesFromDB(page, search as string, category as string, sortBy as 'asc' | 'desc');
 
   //if there is no data
-  noDataFoundResponse(res, result);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Services retrieve successfully",
-    data: result,
-  });
+  if(!result){
+    noDataFoundResponse(res, result);
+  }
+  else{
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Services retrieve successfully",
+      data: result,
+    });
+  }
 });
 
 //get single service controller
@@ -44,14 +47,20 @@ const getServiceById = catchAsync(async (req, res) => {
   const result = await CarServiceServices.getServiceByIDFromDB(req.params.id);
 
   //if there is no data
-  noDataFoundResponse(res, result);
+  // noDataFoundResponse(res, result);
+  
+  if(!result){
+    noDataFoundResponse(res, result);
+  }
+  else{
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Service retrieve successfully",
+      data: result,
+    });
+  }
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Service retrieve successfully",
-    data: result,
-  });
 });
 
 //delete single service controller
