@@ -13,6 +13,7 @@ const serviceSchema = new Schema<TService>(
     benefits: { type: [String], required: true },
     suitableFor: { type: [String], required: true },
     reviews: { type: [Schema.Types.ObjectId], ref: "ServiceReview", default: [] },
+    rating: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

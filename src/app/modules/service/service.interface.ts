@@ -11,4 +11,5 @@ export type TService = {
   benefits: string[];
   suitableFor: string[];
   reviews?: Types.ObjectId[];
+  rating?: number;
 };
