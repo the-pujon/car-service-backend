@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth("user", "admin"),
+//   auth("user", "admin"),
   validateRequest(ServiceReviewValidation.createServiceReviewValidationSchema),
   ServiceReviewController.createServiceReview,
 );
