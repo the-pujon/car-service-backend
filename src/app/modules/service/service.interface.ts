@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type TService = {
   name: string;
   description: string;
@@ -8,4 +10,5 @@ export type TService = {
   image: string;
   benefits: string[];
   suitableFor: string[];
+  reviews?: Types.ObjectId[];
 };

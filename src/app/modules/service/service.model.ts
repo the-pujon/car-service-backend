@@ -12,6 +12,7 @@ const serviceSchema = new Schema<TService>(
     image: { type: String, required: true },
     benefits: { type: [String], required: true },
     suitableFor: { type: [String], required: true },
+    reviews: { type: [Schema.Types.ObjectId], ref: "ServiceReview", default: [] },
   },
   { timestamps: true },
 );
