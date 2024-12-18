@@ -68,7 +68,26 @@ const calculateServiceWiseTransactions = async () => {
   return result;
 };
 
-const calculateDateWiseTransactions = async (startDate: Date, endDate: Date) => {
+const calculateDateWiseTransactions = async (startDate: Date, endDate: Date, interval: 'day' | 'week' | 'month' = 'day') => {
+  let groupBy;
+
+  switch (interval) {
+    case 'week':
+      groupBy = { 
+        year: { $year: '$createdAt' },
+        week: { $week: '$createdAt' }
+      };
+      break;
+    case 'month':
+      groupBy = { 
+        year: { $year: '$createdAt' },
+        month: { $month: '$createdAt' }
+      };
+      break;
+    default:
+      groupBy = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
+  }
+
   const result = await TransactionModel.aggregate([
     {
       $match: {
@@ -80,7 +99,7 @@ const calculateDateWiseTransactions = async (startDate: Date, endDate: Date) => 
     },
     {
       $group: {
-        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        _id: groupBy,
         totalTransactions: { $count: {} },
         totalAmount: {
           $sum: { $toDouble: '$amount' }
@@ -88,7 +107,51 @@ const calculateDateWiseTransactions = async (startDate: Date, endDate: Date) => 
       }
     },
     {
-      $sort: { _id: 1 }
+      $sort: { 
+        '_id.year': 1,
+        '_id.month': 1,
+        '_id.week': 1,
+        '_id': 1
+      }
+    },
+    {
+      $project: {
+        _id: {
+          $switch: {
+            branches: [
+              {
+                case: { $eq: [interval, 'week'] },
+                then: {
+                  $concat: [
+                    { $toString: '$_id.year' },
+                    '-W',
+                    { $toString: '$_id.week' }
+                  ]
+                }
+              },
+              {
+                case: { $eq: [interval, 'month'] },
+                then: {
+                  $concat: [
+                    { $toString: '$_id.year' },
+                    '-',
+                    {
+                      $cond: {
+                        if: { $lt: ['$_id.month', 10] },
+                        then: { $concat: ['0', { $toString: '$_id.month' }] },
+                        else: { $toString: '$_id.month' }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            default: '$_id'
+          }
+        },
+        totalTransactions: 1,
+        totalAmount: 1
+      }
     }
   ]);
   return result;
@@ -120,6 +183,18 @@ const updateTransactionStatus = async (id: string, status: string) => {
   return result;
 };
 
+const getTransactionsByDateRange = async (startDate: Date, endDate: Date) => {
+  const result = await TransactionModel.find({
+    createdAt: {
+      $gte: startDate,
+      $lte: endDate
+    }
+  })
+    .populate('service')
+    .sort({ createdAt: -1 });
+  return result;
+};
+
 export const TransactionService = {
   createTransaction,
   getAllTransactions,
@@ -130,5 +205,6 @@ export const TransactionService = {
   calculateServiceWiseTransactions,
   calculateDateWiseTransactions,
   calculateStatusWiseTransactions,
-  updateTransactionStatus
+  updateTransactionStatus,
+  getTransactionsByDateRange,
 };

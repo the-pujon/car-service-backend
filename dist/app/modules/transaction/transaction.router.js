@@ -23,7 +23,7 @@ router.get('/:id', (0, auth_1.auth)(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.CUSTOME
 //   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.CUSTOMER),
 //   TransactionController.getTransactionsByCustomerId
 // );
-router.get('/user-transactions', (0, auth_1.auth)(ENUM_USER_ROLE.CUSTOMER), transaction_controller_1.TransactionController.getTransactionsByUserEmail);
+router.get('/user/my-transactions', (0, auth_1.auth)("user"), transaction_controller_1.TransactionController.getTransactionsByUserEmail);
 router.get('/service/:serviceId', (0, auth_1.auth)(ENUM_USER_ROLE.ADMIN), transaction_controller_1.TransactionController.getTransactionsByServiceId);
 router.get('/calculate/service-wise', (0, auth_1.auth)(ENUM_USER_ROLE.ADMIN), transaction_controller_1.TransactionController.calculateServiceWiseTransactions);
 router.get('/calculate/date-wise', (0, auth_1.auth)(ENUM_USER_ROLE.ADMIN), transaction_controller_1.TransactionController.calculateDateWiseTransactions);
