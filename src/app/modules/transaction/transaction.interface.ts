@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 
 export type TTransaction = {
-    customer: Types.ObjectId;
+    customer: string;
     service: Types.ObjectId;
     transactionId: string;
     amount: string;

@@ -2,8 +2,7 @@ import { model, Schema } from "mongoose";
 
 const TransactionSchema = new Schema({
     customer: {
-        type: Schema.Types.ObjectId,
-        ref: 'Customer',
+        type: String,
         required: true
     },
     service: {

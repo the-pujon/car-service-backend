@@ -34,11 +34,11 @@ router.get(
   TransactionController.getTransactionById
 );
 
-router.get(
-  '/customer/:customerId',
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.CUSTOMER),
-  TransactionController.getTransactionsByCustomerId
-);
+// router.get(
+//   '/customer/:customerId',
+//   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.CUSTOMER),
+//   TransactionController.getTransactionsByCustomerId
+// );
 
 router.get(
   '/user-transactions',

@@ -4,6 +4,7 @@ import { AuthRoutes } from "../modules/auth/auth.route";
 import { BookingRoutes } from "../modules/booking/booking.route";
 import { ReviewRoutes } from "../modules/review/review.route";
 import { ServiceReviewRoutes } from "../modules/serviceReview/serviceReview.route";
+import { TransactionRoutes } from "../modules/transaction/transaction.router";
 
 const router = Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: "/service-reviews",
     route: ServiceReviewRoutes,
+  },
+  {
+    path: "/transactions",
+    route: TransactionRoutes,
   },
 ];
 

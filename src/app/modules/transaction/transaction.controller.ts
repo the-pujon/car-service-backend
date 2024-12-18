@@ -39,16 +39,16 @@ const getTransactionById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getTransactionsByCustomerId = catchAsync(async (req: Request, res: Response) => {
-  const result = await TransactionService.getTransactionsByCustomerId(req.params.customerId);
+// const getTransactionsByCustomerId = catchAsync(async (req: Request, res: Response) => {
+//   const result = await TransactionService.getTransactionsByCustomerId(req.params.customerId);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Customer transactions retrieved successfully",
-    data: result
-  });
-});
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: "Customer transactions retrieved successfully",
+//     data: result
+//   });
+// });
 
 const getTransactionsByUserEmail = catchAsync(async (req: Request, res: Response) => {
   const userEmail = req.user?.email;
@@ -127,7 +127,7 @@ export const TransactionController = {
   createTransaction,
   getAllTransactions,
   getTransactionById,
-  getTransactionsByCustomerId,
+//   getTransactionsByCustomerId,
   getTransactionsByUserEmail,
   getTransactionsByServiceId,
   calculateServiceWiseTransactions,

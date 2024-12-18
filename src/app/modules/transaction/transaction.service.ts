@@ -20,19 +20,15 @@ const getTransactionById = async (id: string) => {
   return result;
 };
 
-const getTransactionsByCustomerId = async (customerId: string) => {
-  const result = await TransactionModel.find({ customer: customerId })
-    .populate('customer')
-    .populate('service');
-  return result;
-};
+// const getTransactionsByCustomerId = async (customerId: string) => {
+//   const result = await TransactionModel.find({ customer: customerId })
+//     .populate('customer')
+//     .populate('service');
+//   return result;
+// };
 
 const getTransactionsByUserEmail = async (email: string) => {
-  const result = await TransactionModel.find()
-    .populate({
-      path: 'customer',
-      match: { email: email }
-    })
+  const result = await TransactionModel.find({ customer: email })
     .populate('service')
     .exec();
   
@@ -41,7 +37,7 @@ const getTransactionsByUserEmail = async (email: string) => {
 
 const getTransactionsByServiceId = async (serviceId: string) => {
   const result = await TransactionModel.find({ service: serviceId })
-    .populate('customer')
+    // .populate('customer')
     .populate('service');
   return result;
 };
@@ -128,7 +124,7 @@ export const TransactionService = {
   createTransaction,
   getAllTransactions,
   getTransactionById,
-  getTransactionsByCustomerId,
+//   getTransactionsByCustomerId,
   getTransactionsByUserEmail,
   getTransactionsByServiceId,
   calculateServiceWiseTransactions,
