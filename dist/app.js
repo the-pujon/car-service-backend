@@ -22,7 +22,8 @@ app.get("/", (req, res) => {
         message: "Welcome to car washing service api",
     });
 });
-app.post("/api/booking-success", express_1.default.json(), (req, res) => {
+app.post("/api/booking-success", (req, res) => {
+    // console.log(req);
     res.redirect(302, `${process.env.FRONTEND_URL}/booking-success`);
 });
 // console.log(process.env.FRONTEND_URL);
