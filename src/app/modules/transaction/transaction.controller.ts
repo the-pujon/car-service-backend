@@ -52,6 +52,7 @@ const getTransactionById = catchAsync(async (req: Request, res: Response) => {
 
 const getTransactionsByUserEmail = catchAsync(async (req: Request, res: Response) => {
   const userEmail = req.user?.email;
+  console.log(userEmail)
   const result = await TransactionService.getTransactionsByUserEmail(userEmail);
 
   sendResponse(res, {

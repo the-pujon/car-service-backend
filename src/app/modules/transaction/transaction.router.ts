@@ -41,8 +41,8 @@ router.get(
 // );
 
 router.get(
-  '/user-transactions',
-  auth(ENUM_USER_ROLE.CUSTOMER),
+  '/user/my-transactions',
+  auth("user"),
   TransactionController.getTransactionsByUserEmail
 );
 
