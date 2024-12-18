@@ -34,25 +34,34 @@ const getService = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     const page = parseInt(req.query.page) || 1;
     const result = yield service_service_1.CarServiceServices.getServicesFromDB(page, search, category, sortBy);
     //if there is no data
-    (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "Services retrieve successfully",
-        data: result,
-    });
+    if (!result) {
+        (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: "Services retrieve successfully",
+            data: result,
+        });
+    }
 }));
 //get single service controller
 const getServiceById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield service_service_1.CarServiceServices.getServiceByIDFromDB(req.params.id);
     //if there is no data
-    (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "Service retrieve successfully",
-        data: result,
-    });
+    // noDataFoundResponse(res, result);
+    if (!result) {
+        (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            statusCode: http_status_1.default.OK,
+            success: true,
+            message: "Service retrieve successfully",
+            data: result,
+        });
+    }
 }));
 //delete single service controller
 const deleteServiceByID = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -31,13 +31,17 @@ const getSlotController = (0, catchAsync_1.default)((req, res) => __awaiter(void
     const { date, serviceId } = req.query;
     const result = yield slot_service_1.SlotServices.getSlotsFromDB(date, serviceId);
     //if there is no data
-    (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: "Available slots retrieved successfully",
-        data: result,
-    });
+    if (result.length === 0) {
+        (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            success: true,
+            statusCode: http_status_1.default.OK,
+            message: "Available slots retrieved successfully",
+            data: result,
+        });
+    }
 }));
 const updateSlotStatusController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
@@ -53,12 +57,17 @@ const updateSlotStatusController = (0, catchAsync_1.default)((req, res) => __awa
 const getSlotByIdController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield slot_service_1.SlotServices.getSlotByIdFromDB(id);
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: "Slot retrieved successfully",
-        data: result,
-    });
+    if (!result) {
+        (0, noDataFoundResponse_1.noDataFoundResponse)(res, result);
+    }
+    else {
+        (0, sendResponse_1.default)(res, {
+            success: true,
+            statusCode: http_status_1.default.OK,
+            message: "Slot retrieved successfully",
+            data: result,
+        });
+    }
 }));
 exports.SlotControllers = {
     createSlotController,

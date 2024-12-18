@@ -12,5 +12,7 @@ const serviceSchema = new mongoose_1.Schema({
     image: { type: String, required: true },
     benefits: { type: [String], required: true },
     suitableFor: { type: [String], required: true },
+    reviews: { type: [mongoose_1.Schema.Types.ObjectId], ref: "ServiceReview", default: [] },
+    rating: { type: Number, default: 0 },
 }, { timestamps: true });
 exports.ServiceModel = (0, mongoose_1.model)("Service", serviceSchema);

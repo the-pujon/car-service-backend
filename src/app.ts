@@ -24,7 +24,8 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.post("/api/booking-success", express.json(), (req, res) => {
+app.post("/api/booking-success", (req, res) => {
+  // console.log(req);
   res.redirect(302, `${process.env.FRONTEND_URL as string}/booking-success`);
 });
 

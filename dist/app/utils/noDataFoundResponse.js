@@ -8,7 +8,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const sendResponse_1 = __importDefault(require("./sendResponse"));
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const noDataFoundResponse = (res, result) => {
-    if (result.length === 0 || !result) {
+    if ((Array.isArray(result) && result.length === 0) || !result) {
         (0, sendResponse_1.default)(res, {
             success: false,
             statusCode: http_status_1.default.NOT_FOUND,

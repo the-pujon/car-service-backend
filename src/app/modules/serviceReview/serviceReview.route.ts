@@ -15,7 +15,7 @@ router.post(
 
 router.get('/', ServiceReviewController.getAllServiceReviews);
 
-router.get('/:id', ServiceReviewController.getSingleServiceReview);
+router.get('/:id', ServiceReviewController.getServiceReviewsByServiceID);
 
 router.patch(
   '/:id',

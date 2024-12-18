@@ -62,13 +62,13 @@ const createServiceReview = async (payload: TServiceReview) => {
 
 const getAllServiceReviews = async () => {
   const reviews = await ServiceReviewModel.find({ isDeleted: false })
-    .populate('service');
+    // .populate('service');
   return reviews;
 };
 
-const getSingleServiceReview = async (id: string) => {
-  const review = await ServiceReviewModel.findById(id)
-    .populate('service');
+const getServiceReviewsByServiceID = async (id: string) => {
+  const review = await ServiceReviewModel.find({service:id,isDeleted:false})
+    // .populate('service');
   
   if (!review) {
     throw new AppError(httpStatus.NOT_FOUND, 'Review not found');
@@ -154,7 +154,7 @@ const deleteServiceReview = async (id: string) => {
 export const ServiceReviewService = {
   createServiceReview,
   getAllServiceReviews,
-  getSingleServiceReview,
+  getServiceReviewsByServiceID,
   updateServiceReview,
   deleteServiceReview,
 };

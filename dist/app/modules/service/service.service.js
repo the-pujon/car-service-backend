@@ -60,10 +60,7 @@ const getServicesFromDB = (page, searchQuery, category, sortBy) => __awaiter(voi
         const cachedData = yield (0, redis_utils_1.getCachedData)(cacheKey);
         if (cachedData) {
             const paginationResultData = (0, paginationData_1.paginationData)(page, limit, total, cachedData);
-            return {
-                data: cachedData,
-                meta: paginationResultData
-            };
+            return Object.assign(Object.assign({}, cachedData), { meta: paginationResultData });
         }
     }
     // Create sort object

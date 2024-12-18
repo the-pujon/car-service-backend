@@ -27,9 +27,9 @@ const getAllServiceReviews = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getSingleServiceReview = catchAsync(async (req: Request, res: Response) => {
+const getServiceReviewsByServiceID = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ServiceReviewService.getSingleServiceReview(id);
+  const result = await ServiceReviewService.getServiceReviewsByServiceID(id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -66,7 +66,7 @@ const deleteServiceReview = catchAsync(async (req: Request, res: Response) => {
 export const ServiceReviewController = {
   createServiceReview,
   getAllServiceReviews,
-  getSingleServiceReview,
+  getServiceReviewsByServiceID,
   updateServiceReview,
   deleteServiceReview,
 };

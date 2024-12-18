@@ -27,6 +27,8 @@ const serviceReviewSchema = new Schema<TServiceReview>({
         type: Boolean,
         default: false,
     },
-})
+},
+{ timestamps: true }
+)
 
 export const ServiceReviewModel = model<TServiceReview>("ServiceReview", serviceReviewSchema);
