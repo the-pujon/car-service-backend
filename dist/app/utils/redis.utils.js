@@ -19,6 +19,7 @@ const redis_config_1 = __importDefault(require("../config/redis.config"));
 const cacheData = (key, data, expirationTime) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield redis_config_1.default.setEx(key, expirationTime, JSON.stringify(data));
+        console.log('Cached data set successfully');
     }
     catch (error) {
         console.error('Error caching data:', error);
