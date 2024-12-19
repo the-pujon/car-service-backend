@@ -70,7 +70,24 @@ const calculateServiceWiseTransactions = () => __awaiter(void 0, void 0, void 0,
     ]);
     return result;
 });
-const calculateDateWiseTransactions = (startDate, endDate) => __awaiter(void 0, void 0, void 0, function* () {
+const calculateDateWiseTransactions = (startDate_1, endDate_1, ...args_1) => __awaiter(void 0, [startDate_1, endDate_1, ...args_1], void 0, function* (startDate, endDate, interval = 'day') {
+    let groupBy;
+    switch (interval) {
+        case 'week':
+            groupBy = {
+                year: { $year: '$createdAt' },
+                week: { $week: '$createdAt' }
+            };
+            break;
+        case 'month':
+            groupBy = {
+                year: { $year: '$createdAt' },
+                month: { $month: '$createdAt' }
+            };
+            break;
+        default:
+            groupBy = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
+    }
     const result = yield transaction_model_1.TransactionModel.aggregate([
         {
             $match: {
@@ -82,7 +99,7 @@ const calculateDateWiseTransactions = (startDate, endDate) => __awaiter(void 0, 
         },
         {
             $group: {
-                _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+                _id: groupBy,
                 totalTransactions: { $count: {} },
                 totalAmount: {
                     $sum: { $toDouble: '$amount' }
@@ -90,7 +107,51 @@ const calculateDateWiseTransactions = (startDate, endDate) => __awaiter(void 0, 
             }
         },
         {
-            $sort: { _id: 1 }
+            $sort: {
+                '_id.year': 1,
+                '_id.month': 1,
+                '_id.week': 1,
+                '_id': 1
+            }
+        },
+        {
+            $project: {
+                _id: {
+                    $switch: {
+                        branches: [
+                            {
+                                case: { $eq: [interval, 'week'] },
+                                then: {
+                                    $concat: [
+                                        { $toString: '$_id.year' },
+                                        '-W',
+                                        { $toString: '$_id.week' }
+                                    ]
+                                }
+                            },
+                            {
+                                case: { $eq: [interval, 'month'] },
+                                then: {
+                                    $concat: [
+                                        { $toString: '$_id.year' },
+                                        '-',
+                                        {
+                                            $cond: {
+                                                if: { $lt: ['$_id.month', 10] },
+                                                then: { $concat: ['0', { $toString: '$_id.month' }] },
+                                                else: { $toString: '$_id.month' }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ],
+                        default: '$_id'
+                    }
+                },
+                totalTransactions: 1,
+                totalAmount: 1
+            }
         }
     ]);
     return result;
@@ -115,6 +176,17 @@ const updateTransactionStatus = (id, status) => __awaiter(void 0, void 0, void 0
         .populate('service');
     return result;
 });
+const getTransactionsByDateRange = (startDate, endDate) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield transaction_model_1.TransactionModel.find({
+        createdAt: {
+            $gte: startDate,
+            $lte: endDate
+        }
+    })
+        .populate('service')
+        .sort({ createdAt: -1 });
+    return result;
+});
 exports.TransactionService = {
     createTransaction,
     getAllTransactions,
@@ -125,5 +197,6 @@ exports.TransactionService = {
     calculateServiceWiseTransactions,
     calculateDateWiseTransactions,
     calculateStatusWiseTransactions,
-    updateTransactionStatus
+    updateTransactionStatus,
+    getTransactionsByDateRange,
 };

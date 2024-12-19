@@ -5,6 +5,7 @@ import redisClient from "../config/redis.config"
 export const cacheData = async (key: string, data: any, expirationTime: number) => {
     try{
         await redisClient.setEx(key, expirationTime, JSON.stringify(data));
+        console.log('Cached data set successfully');
          
     } catch (error) {
         console.error('Error caching data:', error);
