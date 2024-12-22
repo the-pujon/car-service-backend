@@ -84,6 +84,48 @@ const createBookingIntoDB = async (
   }
 };
 
+
+
+const reScheduleBooking = async (bookingId: string, newSlotId: string) => {
+  const booking = await BookingModel.findById(bookingId);
+
+  if (!booking) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Booking not found");
+  }
+
+  const newSlot = await SlotModel.findById(newSlotId);
+
+  if (!newSlot) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Slot not found");
+  }
+
+  const session = await mongoose.startSession();
+
+  try{
+    session.startTransaction();
+
+    await SlotModel.findByIdAndUpdate(booking.slot, {
+      isBooked: "available",
+    });
+
+    await SlotModel.findByIdAndUpdate(newSlotId, {
+      isBooked: "booked",
+    });
+
+    const result = await BookingModel.findByIdAndUpdate(bookingId, {
+      slot: newSlotId,
+    });
+
+    return result;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  catch(err:any){
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error(err);
+  }
+}
+
 const getBookingFromDB = async () => {
   const result = await BookingModel.find().populate([
     "customer",
@@ -138,4 +180,5 @@ export const BookingService = {
   getBookingFromDB,
   getUserBookingsFromDB,
   getBookingsByCustomerIdFromDB,
+  reScheduleBooking,
 };
