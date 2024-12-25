@@ -84,7 +84,21 @@ const createBookingIntoDB = async (
   }
 };
 
+const cancelBooking = async (bookingId: string) => {
+  const booking = await BookingModel.findById(bookingId);
 
+  if (!booking) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Booking not found");
+  }
+
+  await SlotModel.findByIdAndUpdate(booking.slot, {
+    isBooked: "available",
+  });
+
+  await BookingModel.findByIdAndDelete(bookingId);
+
+  return booking;
+};
 
 const reScheduleBooking = async (bookingId: string, newSlotId: string) => {
   const booking = await BookingModel.findById(bookingId);
@@ -181,4 +195,5 @@ export const BookingService = {
   getUserBookingsFromDB,
   getBookingsByCustomerIdFromDB,
   reScheduleBooking,
+  cancelBooking,
 };
