@@ -75,6 +75,47 @@ const createBookingIntoDB = (userData, payload) => __awaiter(void 0, void 0, voi
         throw new Error(err);
     }
 });
+const cancelBooking = (bookingId) => __awaiter(void 0, void 0, void 0, function* () {
+    const booking = yield booking_model_1.BookingModel.findById(bookingId);
+    if (!booking) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Booking not found");
+    }
+    yield slot_model_1.SlotModel.findByIdAndUpdate(booking.slot, {
+        isBooked: "available",
+    });
+    yield booking_model_1.BookingModel.findByIdAndDelete(bookingId);
+    return booking;
+});
+const reScheduleBooking = (bookingId, newSlotId) => __awaiter(void 0, void 0, void 0, function* () {
+    const booking = yield booking_model_1.BookingModel.findById(bookingId);
+    if (!booking) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Booking not found");
+    }
+    const newSlot = yield slot_model_1.SlotModel.findById(newSlotId);
+    if (!newSlot) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Slot not found");
+    }
+    const session = yield mongoose_1.default.startSession();
+    try {
+        session.startTransaction();
+        yield slot_model_1.SlotModel.findByIdAndUpdate(booking.slot, {
+            isBooked: "available",
+        });
+        yield slot_model_1.SlotModel.findByIdAndUpdate(newSlotId, {
+            isBooked: "booked",
+        });
+        const result = yield booking_model_1.BookingModel.findByIdAndUpdate(bookingId, {
+            slot: newSlotId,
+        });
+        return result;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    catch (err) {
+        yield session.abortTransaction();
+        yield session.endSession();
+        throw new Error(err);
+    }
+});
 const getBookingFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield booking_model_1.BookingModel.find().populate([
         "customer",
@@ -119,4 +160,6 @@ exports.BookingService = {
     getBookingFromDB,
     getUserBookingsFromDB,
     getBookingsByCustomerIdFromDB,
+    reScheduleBooking,
+    cancelBooking,
 };

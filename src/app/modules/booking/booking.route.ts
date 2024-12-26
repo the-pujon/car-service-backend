@@ -25,4 +25,6 @@ router.get(
 
 router.delete("/:bookingId", auth("user", "admin"), BookingControllers.cancelBooking);
 
+router.patch("/reschedule", auth("user"), BookingControllers.rescheduleBooking);
+
 export const BookingRoutes = router;

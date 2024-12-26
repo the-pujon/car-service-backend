@@ -69,10 +69,23 @@ const cancelBooking = catchAsync(async (req, res) => {
   });
 });
 
+const rescheduleBooking = catchAsync(async (req, res) => {
+  const { bookingId, slotId } = req.query;
+  const result = await BookingService.reScheduleBooking(bookingId as string, slotId as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Booking rescheduled successfully",
+    data: result,
+  });
+});
+
 export const BookingControllers = {
   createBooking,
   getBooking,
   getUserBooking,
   getBookingsByCustomerId,
   cancelBooking,
+  rescheduleBooking,
 };

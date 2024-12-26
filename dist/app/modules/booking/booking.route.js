@@ -14,4 +14,5 @@ router.post("/", (0, auth_1.auth)("user"), (0, validateRequest_1.default)(bookin
 router.get("/", (0, auth_1.auth)("admin"), booking_controller_1.BookingControllers.getBooking);
 router.get("/my-bookings", (0, auth_1.auth)("user"), booking_controller_1.BookingControllers.getUserBooking);
 router.get("/customer/:customerId", (0, auth_1.auth)("admin"), booking_controller_1.BookingControllers.getBookingsByCustomerId);
+router.delete("/:bookingId", (0, auth_1.auth)("user", "admin"), booking_controller_1.BookingControllers.cancelBooking);
 exports.BookingRoutes = router;
