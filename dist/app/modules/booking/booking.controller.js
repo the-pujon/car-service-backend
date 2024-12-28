@@ -70,10 +70,21 @@ const cancelBooking = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
+const rescheduleBooking = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { bookingId, slotId } = req.query;
+    const result = yield booking_service_1.BookingService.reScheduleBooking(bookingId, slotId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Booking rescheduled successfully",
+        data: result,
+    });
+}));
 exports.BookingControllers = {
     createBooking,
     getBooking,
     getUserBooking,
     getBookingsByCustomerId,
     cancelBooking,
+    rescheduleBooking,
 };
