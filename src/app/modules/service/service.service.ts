@@ -5,6 +5,7 @@ import { ServiceModel } from "./service.model";
 import config from "../../config";
 import { cacheData, deleteCachedData, getCachedData } from "../../utils/redis.utils";
 import { paginationData } from "../../utils/paginationData";
+import { BookingModel } from "../booking/booking.model";
 
 const redisCacheKeyPrefix = config.redis_cache_key_prefix;
 const redisTTL = parseInt(config.redis_ttl as string);
@@ -156,6 +157,7 @@ const deleteServiceByIDFromDB = async (id: string) => {
 
 };
 
+//update service
 const updateServiceByIDIntoDB = async (
   id: string,
   payload: Partial<TService>,
@@ -196,10 +198,246 @@ const updateServiceByIDIntoDB = async (
   return result;
 };
 
+// //service overview
+// const getServiceOverviewFromDB = async () => {
+//   const services = await ServiceModel.find();
+//   const totalActiveServices = await ServiceModel.countDocuments({isDeleted: false});
+//   // console.log(totalServices)
+//   const bookings = await BookingModel.find()
+//   .populate({
+//     path: 'service',
+//     // match: { isDeleted: { $ne: true } },
+//     // select: 'price -_id isDeleted',
+//   });
+  
+
+//   const servicesWithMetrics = await Promise.all(services.map( async (service) => {
+//     // const serviceBookings = bookings.filter(
+//     //   (booking) => booking.service._id === service._id
+//     // );
+
+
+//     const serviceBookings = await BookingModel.find({ service: service._id }).select('service').populate({
+//       path: 'service',
+//       // match: { isDeleted: { $ne: true } },
+//       select: 'price -_id isDeleted',
+//     });
+
+//     // if(serviceBookings.length !== 0){
+//     //   console.log("serviceBookings", serviceBookings);
+//     // }
+
+//     const revenue = serviceBookings.reduce(
+//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//       (sum, booking) => sum + (booking.service as any).price,
+//       0
+//     );
+ 
+
+//     // console.log(`bookings for ${service.name}: ${serviceBookings.length}`);
+
+//     // console.log(`revenue for ${service.name}: `, revenue);
+//     const bookingPercentage = (serviceBookings.length / bookings.length) * 100;
+//     // console.log(`bookingPercentage for ${service.name}: `, bookingPercentage);
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     const revenuePercentage = (revenue / bookings.reduce((sum, booking) => sum + (booking.service as any).price, 0)) * 100;
+//     // console.log(`revenuePercentage for ${service.name}: `, revenuePercentage);
+//     const overviewResult = {
+//       name: service.name,
+//       category: service.category,
+//       bookingPercentage: bookingPercentage.toFixed(2),
+//       revenuePercentage: revenuePercentage.toFixed(2),
+//       revenue,
+//       bookings: serviceBookings.length,
+//     }
+
+//     return overviewResult
+//   }))
+//   const totalRevenue = bookings.reduce(
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     (sum, booking) => sum + (booking.service as any).price,
+//     0
+//   );
+
+//   // console.log(servicesWithMetrics);
+//   // console.log(totalRevenue)
+//   // 
+//   console.log(servicesWithMetrics)
+//   return {
+//     servicesWithMetrics,
+//     totalActiveServices,
+//     totalDeletedServices: services.length - totalActiveServices,
+//     totalRevenue,
+//     totalBookings: bookings.length
+//   };
+
+// };
+
+// const serviceMatrics = async () => {
+
+// }
+
+
+interface ServiceMetrics {
+  name: string;
+  category: string;
+  bookingPercentage: string;
+  revenuePercentage: string;
+  revenue: number;
+  bookings: number;
+}
+
+interface PaginationParams {
+  page: number;
+  limit: number;
+  search?: string;
+  category?: string;
+}
+
+interface ServiceOverview {
+  servicesWithMetrics: ServiceMetrics[];
+  totalActiveServices: number;
+  totalDeletedServices: number;
+  totalRevenue: number;
+  totalBookings: number;
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
+const calculateServiceMetrics = async (
+  service: TService,
+  totalBookings: number,
+  totalRevenue: number
+): Promise<ServiceMetrics> => {
+  try {
+    const serviceBookings = await BookingModel.find({ 
+      service: (service as any)._id
+    })
+    .select('service')
+    .populate({
+      path: 'service',
+      select: 'price -_id isDeleted',
+    })
+    .lean();
+
+    const revenue = serviceBookings.reduce(
+      (sum, booking) => sum + ((booking.service as any)?.price || 0),
+      0
+    );
+
+    const bookingPercentage = totalBookings ? 
+      ((serviceBookings.length / totalBookings) * 100) : 0;
+    
+    const revenuePercentage = totalRevenue ? 
+      ((revenue / totalRevenue) * 100) : 0;
+
+    return {
+      name: service.name,
+      category: service.category,
+      bookingPercentage: bookingPercentage.toFixed(2),
+      revenuePercentage: revenuePercentage.toFixed(2),
+      revenue,
+      bookings: serviceBookings.length,
+    };
+  } catch (error) {
+    // console.error(`Error calculating metrics for service ${service.name}:`, error);
+    // throw error;
+
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Error calculating metrics for service");
+
+  }
+};
+
+const buildQueryFilters = (params: PaginationParams) => {
+  const filters: any = {};
+  
+  if (params.search) {
+    filters.name = { $regex: params.search, $options: 'i' };
+  }
+  
+  if (params.category) {
+    filters.category = params.category;
+  }
+  
+  return filters;
+};
+
+export const getServiceOverviewFromDB = async (
+  paginationParams: PaginationParams
+): Promise<ServiceOverview> => {
+  try {
+    const { page = 1, limit = 10 } = paginationParams;
+    const skip = (page - 1) * limit;
+    const queryFilters = buildQueryFilters(paginationParams);
+
+    // Get paginated services and counts
+    const [
+      services,
+      totalServices,
+      totalActiveServices,
+      bookings
+    ] = await Promise.all([
+      ServiceModel.find(queryFilters)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      ServiceModel.countDocuments(queryFilters),
+      ServiceModel.countDocuments({ ...queryFilters, isDeleted: false }),
+      BookingModel.find()
+        .populate({
+          path: 'service',
+          select: 'price -_id isDeleted',
+        })
+        .lean(),
+    ]);
+
+    // Calculate total revenue once
+    const totalRevenue = bookings.reduce(
+      (sum, booking) => sum + (booking.service?.price || 0),
+      0
+    );
+
+    // Calculate metrics for paginated services
+    const servicesWithMetrics = await Promise.all(
+      services.map(service => 
+        calculateServiceMetrics(service, bookings.length, totalRevenue)
+      )
+    );
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalServices / limit);
+
+    return {
+      servicesWithMetrics,
+      totalActiveServices,
+      totalDeletedServices: totalServices - totalActiveServices,
+      totalRevenue,
+      totalBookings: bookings.length,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalServices,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1
+      }
+    };
+  } catch (error) {
+    console.error('Error getting service overview:', error);
+    throw error;
+  }
+};
+
+
 export const CarServiceServices = {
   createServiceIntoDB,
   getServicesFromDB,
   getServiceByIDFromDB,
   deleteServiceByIDFromDB,
   updateServiceByIDIntoDB,
+  getServiceOverviewFromDB
 };

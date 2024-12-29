@@ -19,7 +19,7 @@ router.post(
   validateRequest(ServiceCreateValidation),
   ServiceControllers.createService,
 );
-
+router.get("/overview", ServiceControllers.getServiceOverview);
 router.get("/", ServiceControllers.getService);
 router.get("/:id", ServiceControllers.getServiceById);
 router.patch(
@@ -29,5 +29,6 @@ router.patch(
   ServiceControllers.updateServiceByID,
 );
 router.delete("/:id", auth("admin"), ServiceControllers.deleteServiceByID);
+
 
 export const ServiceRoutes = router;
