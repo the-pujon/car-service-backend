@@ -285,6 +285,7 @@ interface ServiceMetrics {
   revenuePercentage: string;
   revenue: number;
   bookings: number;
+  isDeleted: boolean;
 }
 
 interface PaginationParams {
@@ -339,6 +340,7 @@ const calculateServiceMetrics = async (
     return {
       name: service.name,
       category: service.category,
+      isDeleted: service.isDeleted,
       bookingPercentage: bookingPercentage.toFixed(2),
       revenuePercentage: revenuePercentage.toFixed(2),
       revenue,
