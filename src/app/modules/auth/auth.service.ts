@@ -6,7 +6,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { createToken, omitPassword } from "./auth.utils";
 import config from "../../config";
 import { TUpdateUser } from "./auth.interface";
-import { cacheData } from "../../utils/redis.utils";
+import { cacheData, deleteCachedData } from "../../utils/redis.utils";
 
 const signupUserIntoDB = async (payload: TUser) => {
   const existingUser = await UserModel.findOne({ email: payload.email });
@@ -46,8 +46,9 @@ const loginUserService = async (payload: JwtPayload) => {
     config.jwt_access_secret as string,
     "10h",
   );
-
-  await cacheData(`sparkle-car-service:user:${user.email}:token`, token, 3600*10);
+await deleteCachedData(`sparkle-car-service:user:${user.email}:token`);
+  const cachedToken = await cacheData(`sparkle-car-service:user:${user.email}:token`, token, 3600*10);
+  console.log(cachedToken);
 
   const loggedUserWithoutPassword = omitPassword(user);
 
