@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
-import { TService } from "./service.interface";
+import { MongooseQueryFilters, PaginationParams, ServiceMetrics, ServiceOverview, TService } from "./service.interface";
 import { ServiceModel } from "./service.model";
 import config from "../../config";
 import { cacheData, deleteCachedData, getCachedData } from "../../utils/redis.utils";
@@ -278,37 +278,6 @@ const updateServiceByIDIntoDB = async (
 // }
 
 
-interface ServiceMetrics {
-  name: string;
-  category: string;
-  bookingPercentage: string;
-  revenuePercentage: string;
-  revenue: number;
-  bookings: number;
-  isDeleted: boolean;
-}
-
-interface PaginationParams {
-  page: number;
-  limit: number;
-  search?: string;
-  category?: string;
-}
-
-interface ServiceOverview {
-  servicesWithMetrics: ServiceMetrics[];
-  totalActiveServices: number;
-  totalDeletedServices: number;
-  totalRevenue: number;
-  totalBookings: number;
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
-}
 
 const calculateServiceMetrics = async (
   service: TService,
@@ -317,7 +286,7 @@ const calculateServiceMetrics = async (
 ): Promise<ServiceMetrics> => {
   try {
     const serviceBookings = await BookingModel.find({ 
-      service: (service as any)._id
+      service: service._id
     })
     .select('service')
     .populate({
@@ -327,6 +296,7 @@ const calculateServiceMetrics = async (
     .lean();
 
     const revenue = serviceBookings.reduce(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (sum, booking) => sum + ((booking.service as any)?.price || 0),
       0
     );
@@ -347,16 +317,13 @@ const calculateServiceMetrics = async (
       bookings: serviceBookings.length,
     };
   } catch (error) {
-    // console.error(`Error calculating metrics for service ${service.name}:`, error);
-    // throw error;
-
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Error calculating metrics for service");
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Error calculating metrics for this ${service.name} service`);
 
   }
 };
 
 const buildQueryFilters = (params: PaginationParams) => {
-  const filters: any = {};
+  const filters: MongooseQueryFilters = {};
   
   if (params.search) {
     filters.name = { $regex: params.search, $options: 'i' };
@@ -400,7 +367,8 @@ export const getServiceOverviewFromDB = async (
 
     // Calculate total revenue once
     const totalRevenue = bookings.reduce(
-      (sum, booking) => sum + (booking.service?.price || 0),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (sum, booking) => sum + ((booking.service as any)?.price || 0),
       0
     );
 
@@ -429,8 +397,9 @@ export const getServiceOverviewFromDB = async (
       }
     };
   } catch (error) {
-    console.error('Error getting service overview:', error);
-    throw error;
+    // console.error('Error getting service overview:', error);
+    // throw error;
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'Error getting service overview');
   }
 };
 
