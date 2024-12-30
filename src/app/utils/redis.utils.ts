@@ -33,10 +33,16 @@ export const deleteCachedData = async (pattern: string) => {
     //     console.error('Error deleting cached data:', error);
     // }
     try {
+        // console.log(`Looking for keys matching: ${pattern}`);
         const keys = await redisClient.keys(pattern);
+        // console.log('Keys found:', keys);
         if (keys.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await redisClient.del(...keys as any);
+        //   await redisClient.del(...keys as any);
+        keys.forEach(async (key) => {
+            await redisClient.del(key);
+          });
+          console.log('Cached data deleted successfully');
         }
         return true;
       } catch (error) {

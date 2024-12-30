@@ -63,6 +63,7 @@ const getServicesFromDB = async (
   if (!isFilteredOrSearched) {
     const cacheKey = `${redisCacheKeyPrefix}:service:page:${page}`;
     const cachedData = await getCachedData(cacheKey);
+    
     if (cachedData) {
 
       const paginationResultData = paginationData(page, limit, total, cachedData);
