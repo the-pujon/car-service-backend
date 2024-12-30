@@ -3,7 +3,7 @@ import catchAsync from "../../utils/catchAsync.";
 import sendResponse from "../../utils/sendResponse";
 import { CarServiceServices } from "./service.service";
 import { noDataFoundResponse } from "../../utils/noDataFoundResponse";
-import { z } from "zod";
+import { serviceOverviewQuerySchema } from "./service.validation";
 
 //create service controller
 const createService = catchAsync(async (req, res) => {
@@ -91,25 +91,6 @@ const updateServiceByID = catchAsync(async (req, res) => {
     message: "Service updated successfully",
     data: result,
   });
-});
-
-// //service overview controller
-// const getServiceOverview = catchAsync(async (req, res) => {
-//   const result = await CarServiceServices.getServiceOverviewFromDB();
-
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: "Service overview retrieved successfully",
-//     data: result,
-//   });
-// });
-
-const serviceOverviewQuerySchema = z.object({
-  page: z.string().optional().transform(val => (val ? parseInt(val, 10) : 1)),
-  limit: z.string().optional().transform(val => (val ? parseInt(val, 10) : 10)),
-  search: z.string().optional(),
-  category: z.string().optional(),
 });
 
 const getServiceOverview = catchAsync(async (req, res) => {
