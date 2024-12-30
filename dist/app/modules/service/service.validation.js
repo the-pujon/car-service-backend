@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ServiceUpdateValidation = exports.ServiceCreateValidation = void 0;
+exports.serviceOverviewQuerySchema = exports.ServiceUpdateValidation = exports.ServiceCreateValidation = void 0;
 const zod_1 = require("zod");
 exports.ServiceCreateValidation = zod_1.z.object({
     body: zod_1.z.object({
@@ -25,4 +25,10 @@ exports.ServiceUpdateValidation = zod_1.z.object({
         benefits: zod_1.z.array(zod_1.z.string()).optional(),
         suitableFor: zod_1.z.array(zod_1.z.string()).optional(),
     }),
+});
+exports.serviceOverviewQuerySchema = zod_1.z.object({
+    page: zod_1.z.string().optional().transform(val => (val ? parseInt(val, 10) : 1)),
+    limit: zod_1.z.string().optional().transform(val => (val ? parseInt(val, 10) : 10)),
+    search: zod_1.z.string().optional(),
+    category: zod_1.z.string().optional(),
 });

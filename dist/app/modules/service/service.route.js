@@ -14,6 +14,7 @@ const router = express_1.default.Router();
 //slot routes
 router.use("/slots", slot_route_1.SlotRoutes);
 router.post("/", (0, auth_1.auth)("admin"), (0, validateRequest_1.default)(service_validation_1.ServiceCreateValidation), service_controller_1.ServiceControllers.createService);
+router.get("/overview", service_controller_1.ServiceControllers.getServiceOverview);
 router.get("/", service_controller_1.ServiceControllers.getService);
 router.get("/:id", service_controller_1.ServiceControllers.getServiceById);
 router.patch("/:id", (0, auth_1.auth)("admin"), (0, validateRequest_1.default)(service_validation_1.ServiceUpdateValidation), service_controller_1.ServiceControllers.updateServiceByID);

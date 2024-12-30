@@ -48,10 +48,16 @@ const deleteCachedData = (pattern) => __awaiter(void 0, void 0, void 0, function
     //     console.error('Error deleting cached data:', error);
     // }
     try {
+        // console.log(`Looking for keys matching: ${pattern}`);
         const keys = yield redis_config_1.default.keys(pattern);
+        // console.log('Keys found:', keys);
         if (keys.length > 0) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            yield redis_config_1.default.del(...keys);
+            //   await redisClient.del(...keys as any);
+            keys.forEach((key) => __awaiter(void 0, void 0, void 0, function* () {
+                yield redis_config_1.default.del(key);
+            }));
+            console.log('Cached data deleted successfully');
         }
         return true;
     }

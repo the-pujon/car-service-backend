@@ -18,6 +18,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync."));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const service_service_1 = require("./service.service");
 const noDataFoundResponse_1 = require("../../utils/noDataFoundResponse");
+const service_validation_1 = require("./service.validation");
 //create service controller
 const createService = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield service_service_1.CarServiceServices.createServiceIntoDB(req.body);
@@ -83,6 +84,22 @@ const updateServiceByID = (0, catchAsync_1.default)((req, res) => __awaiter(void
         data: result,
     });
 }));
+const getServiceOverview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // Validate and transform query parameters
+    const validatedQuery = service_validation_1.serviceOverviewQuerySchema.parse(req.query);
+    const result = yield service_service_1.CarServiceServices.getServiceOverviewFromDB({
+        page: validatedQuery.page,
+        limit: validatedQuery.limit,
+        search: validatedQuery.search,
+        category: validatedQuery.category,
+    });
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Service overview retrieved successfully",
+        data: result,
+    });
+}));
 //exporting all controllers
 exports.ServiceControllers = {
     createService,
@@ -90,4 +107,5 @@ exports.ServiceControllers = {
     getServiceById,
     deleteServiceByID,
     updateServiceByID,
+    getServiceOverview
 };

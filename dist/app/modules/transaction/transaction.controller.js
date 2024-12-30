@@ -58,7 +58,7 @@ const getTransactionById = (0, catchAsync_1.default)((req, res) => __awaiter(voi
 const getTransactionsByUserEmail = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userEmail = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email;
-    console.log(userEmail);
+    // console.log(userEmail)
     const result = yield transaction_service_1.TransactionService.getTransactionsByUserEmail(userEmail);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
