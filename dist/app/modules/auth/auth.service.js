@@ -42,7 +42,9 @@ const loginUserService = (payload) => __awaiter(void 0, void 0, void 0, function
         role: user.role,
     };
     const token = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, "10h");
-    yield (0, redis_utils_1.cacheData)(`sparkle-car-service:user:${user.email}:token`, token, 3600 * 10);
+    yield (0, redis_utils_1.deleteCachedData)(`sparkle-car-service:user:${user.email}:token`);
+    const cachedToken = yield (0, redis_utils_1.cacheData)(`sparkle-car-service:user:${user.email}:token`, token, 3600 * 10);
+    console.log(cachedToken);
     const loggedUserWithoutPassword = (0, auth_utils_1.omitPassword)(user);
     return { token, user: loggedUserWithoutPassword };
 });
